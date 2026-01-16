@@ -1,0 +1,104 @@
+---
+title: "Quarto Demo - Week 1"
+author: "SP2026"
+format: html
+embed-resources: true
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Top Matter
+
+Note the top of this page. It is delineated with 3 dashes. This is known as the **Top Matter**. Minimally, it will populate with the title and author and format upon first creation.
+
+In this area, you can also control document properties. For example, you can add a Table of Contents, you can change fonts, address formatting, etc. 
+
+## Adding Text
+
+The beauty of Markdown is the ability to write to text AND code. This writing is done with the help of a Markdown language. I provide a cheatsheet online + there are TONS of resources online. 
+
+### Some basics
+
+You can make a 
+
+# First Level
+
+## Second Level
+
+### Third Level
+
+Header..
+
+## Emphasis
+
+*italics*
+**bold**
+
+## Unordered list
+
+* I
+* am
+* a
+  + list
+  
+## Order List
+
+1. One
+2. Two
+3. Three
+  + Half
+  +
+  
+## Paragraphs
+
+Here is a paragraph.
+
+Here is another one. (Note the space.)
+
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this 
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+## A million other things...
+
+- Math code
+
+$\mu = mx+b$
+
+- Underline
+
+[This is underlined]{.underline}
+
+- Color
+
+<span style="color:goldenrod;">this word is goldenrod</span>
+
+- Tables
+
+| Default | Left | Right | Center |
+|---------|:-----|------:|:------:|
+| 12      | 12   |    12 |   12   |
+| 123     | 123  |   123 |  123   |
+| 1       | 1    |     1 |   1    |
+
+: This is a table
+
+## Have Fun
+
+We will be using quarto files (qmd + html files) all semester. You will be asked to turn in your files in these formats.

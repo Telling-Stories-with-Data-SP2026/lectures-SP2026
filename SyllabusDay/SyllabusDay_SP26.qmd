@@ -1,0 +1,142 @@
+---
+title: "Telling Stories with Data"
+subtitle: "Spring 2026"
+author: ""
+format: 
+  revealjs:
+    theme: simple
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## 
+
+\
+\
+\
+\
+
+> "Whenever you’re learning a new tool, for a long time, you’re going to suck… But the good news is that is typical; that’s something that happens to everyone, and it’s only temporary."
+
+## This is a Data Science Course
+
+### We will not...
+
+1.  Solve math problems by hand
+2.  Create golems
+3.  Ignore science
+
+### We will...
+
+1.  Write stories with code
+2.  Interpret results in context
+3.  [Embrace the Red]{style="color:red;text-decoration:underline;"}
+
+## The Toolkit
+
+### 
+
+![](r_icon.png){width="50%"}
+
+### 
+
+![](git.png){width="50%"}
+
+## Resources {.smaller}
+
+> There is no *formal* textbook in this course.
+
+-   R Cookbook: https://rc2e.com/
+
+-   R Graphics Cookbook: https://r-graphics.org/
+
+-   R for Data Science: https://r4ds.had.co.nz
+
+-   A Course in Machine Learning: https://ciml.info/
+
+-   Understanding Machine Learning – From Theory to Algorithms: https://www.cs.huji.ac.il/\~shais/UnderstandingMachineLearning/index.html
+
+-   Hands-on Machine Learning: https://bradleyboehmke.github.io/HOML/
+
+-   Telling Stories with Data: https://tellingstorieswithdata.com/
+
+-   Active Statistics: https://avehtari.github.io/ActiveStatistics/
+
+-   Learning Statistics with R: https://learningstatisticswithr.com/
+
+-   Big Book of R: https://www.bigbookofr.com/
+
+## Assignments {.smaller}
+
+> Participation: Attendance will be taken via coding exercises. You must attend greater than 90% of classes for full credit.
+
+> Weekly Lab Assignments: 12 total. Friday to Monday. Complete in R. Turn in via Github.
+
+> Practicals: Midterm + Final. Comprehensive. 1 week to complete. Complete in R. Turn in via Github.
+
+### Graduate Students only
+
+> Research Project: a project proposal, project code, statistical justification, and a final presentation [Final Exam Day].
+
+## Class Structure
+
+-  Monday = Lecture + Code Demos
+
+-  Wednesday = Lecture + Code Demos
+
+- Friday = Lab Time (Attendance still taken)
+
+### Github
+All assignments will be turned in via the Git server Github. All students must create a git account (free to create) and regularly interact with this program and their R environment. We will train on this software on Friday. 
+
+## Course Specific Information {.smaller}
+
+### Collaboration and Group Work
+
+Learning is a group endeavor. Especially statistics! I encourage each of you to discuss lectures outside of class, use each other when there is a difficult topic, and work on labs and assignments together. That said, your work is your work, if you are going to collaborate, then each of you must turn in your own work.
+
+\
+
+### AI Usage
+
+While AI is a powerful tool, it does not supplement your own work and learning. AI software may assist you – or even give you the answers to – how to code things. The beauty of coding is that there are millions of approaches to come to the same solution. I therefore, cannot oversee your personal use of AI in this class.  However, I encourage you to exercise your ability to train your search-engine algorithms (i.e., Google it) and consult with your peers instead.
+
+## CANVAS!
+
+> Please familiarize yourself with all documents and the schedule on Canvas. 
+
+-  I will utilize announcements often to send along reading information and course content. 
+
+## The Whole Game
+
+![](iceberg.png)
+
+## 
+
+### Instructor
+
+-  Flanagan 215
+- Office Hours:
+    -  M: 1-3PM
+    -  W: 12-3PM
+
+### TA - Elizabeth Paradise
+
+- Flanagan 225
+
+## Wednesday
+
+> Download R language
+
+-  https://www.r-project.org/
+
+> Download RStudio
+
+- https://posit.co/download/rstudio-desktop/
+  
+**In-Depth instructions to follow...**

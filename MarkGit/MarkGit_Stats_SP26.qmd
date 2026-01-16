@@ -1,0 +1,108 @@
+---
+title: "Reproducible Workflows"
+subtitle: "Spring 2026"
+author: ""
+format: 
+  revealjs:
+    theme: simple
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Reproducibility
+
+> Reproducibility is obtaining consistent results using the same input data; computational steps, methods, and code; and conditions of analysis.
+
+# Step 1: Writing (and getting) Results
+
+## Markdown Languages
+
+<center>
+A format that combines code, results, and commentary into a single file
+</center>
+
+**Markup files are designed for:**
+
+-   Communicating to those who want to focus on the conclusions and not the code (advisers, clients, me)
+
+-   Collaborating with other data data scientists who are interested in the conclusions [and]{.underline} the code (your peers)
+
+-   Used as a modern day lab notebook where you can document 1) what you did, 2) what you were thinking, and 3) how you got there.
+
+
+<center>
+[**Examples include: HTML, LaTex, Markdown**]{style="color:red;"}
+</center>
+
+## Quarto
+
+-   Built into the Rstudio environment
+-   Successor to RMarkdown
+-   Words + Code
+-   Can edit with Markdown code OR a visual editor
+
+![](quarto.png){width="70%" fig-align="center"}
+
+##
+
+![](md_ex.png){fig-align="center"}
+
+##
+
+![](qmd_ex.png){fig-align="center"}
+
+# Quarto Demo
+
+## Version Control
+
+We've all been here...
+
+![](old_vc.png){fig-align="center"}
+
+##
+
+![](vc_new.png){fig-align="center"}
+
+## Git vs. Github
+
+- Git allows us to keep track of different versions of file(s)
+- Github is a website where we can upload and monitor these tracked changes.
+
+::::{.columns}
+::: {.column width="50%"}
+![](git1.png){fig-align="center"}
+:::
+
+::: {.column width="50%"}
+![](git2.jpg){fig-align="center"}
+:::
+::::
+
+##
+
+![](howto.png){fig-align="center"}
+
+## In this class... {.smaller}
+
+
+
+1. You will all have a complete Git workflow
+    + Please send username to me.
+2. We will have a class Git organization
+3. You will each have weekly repositories. I will upload these the weekend before. 
+4. You will each clone repos from Github.
+    + This will create an Rproject (.rproj)
+    + This goes into a folder on your machine.
+    + My advice, have a 'mother' folder, and a weekly folder
+5. Each week you may have notes (.r file), quarto files (qmd/html), or others. Each day you will commit and push any changes.
+    + Pull every class just in case anything may have changed online. Then continue... make commits... push... repeat
+6. All files will be turned in, in this manner.
+
+##
+
+> (Y)ou are a real, valid, competent user and programmer no matter what IDE you develop in or what tools you use to make your work work for you

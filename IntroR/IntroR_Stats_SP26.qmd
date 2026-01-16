@@ -1,0 +1,302 @@
+---
+title: "Telling Stories with Data"
+subtitle: "Spring 2026"
+author: ""
+format: 
+  revealjs:
+    theme: simple
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+##
+
+> This is a data science class...
+
+### What does this mean?
+
+![](chart.png){width="50%"}
+
+## R vs. RStudio
+
+::: {.columns}
+::: {.column width="50%"}
+
+### R
+
+**R** is a programming language.
+
+*   Your computer operates on a series of 0/1s
+*   R is the translator between you and the computer
+*   Object oriented programming language
+
+:::
+
+::: {.column width="50%"}
+
+### Rstudio
+
+**Rstudio** is an integrated developmental environment (IDE)
+
+*   "Automatic transmission" of the R programming language
+*   Lightweight interface
+*   Aesthetically pleasing and user friendly
+
+:::
+::::
+
+## Why R?
+
+![](whyr.png)
+
+##
+
+![](rstudio_blank.png)
+
+##
+
+![](rstudio_editor.png)
+
+##
+
+![](rstudio_env.png)
+
+##
+
+![](rstudio_console.png)
+
+##
+
+![](rstudio_plot.png)
+
+## Packages in R
+
+::: {.columns}
+::: {.column width="50%"}
+
+**R** is a **functional** programming language.
+
+\
+
+A **function** is a self-contained block of code that accomplishes a specific task
+
+\
+
+**Functions** are bundled within **packages**
+
+:::
+
+::: {.column width="50%"}
+
+![](lib.png)
+
+:::
+::::
+
+##
+
+![](func.png){width="70%"}
+
+![](func2.png){width="70%"}
+
+
+## 
+
+::: {.r-fit-text .center}
+Demo!
+:::
+
+## Some Technical Notes
+
+:::{style="font-size: 70%;"}
+
+**R is case sensitive...**
+
+\
+
+**x** is not the same as **X**.
+
+
+**my_variable** is not the same as **My_Variable**. 
+
+
+**sum()** is not the same as **SUM()**. 
+
+\
+
+***but R is communicative***
+
+:::
+
+```{r}
+#| error: true
+#| echo: true
+anthro <- "is_awesome"
+anthr
+```
+
+\
+
+[**Always check spelling first (and syntax)...**]{style="color:red;"}
+
+## Object Names
+
+::: {.columns}
+::: {.column style = "width: 50%; font-size: 60%;"}
+
+Everything is stored in R as an **Object**
+
+```{r}
+#| echo: true
+
+anthro <- "rocks"
+```
+
+**Object names should:**
+
+1.  Start with a letter
+
+2.  Be descriptive, concise, and meaningful
+
+
+\
+
+**General naming conventions:**
+
+*   Snake case: obj_name
+
+*   Camel case: ObjName
+
+*   Periods: obj.name
+
+:::
+
+::: {.column width="50%"}
+
+![](obj.png)
+
+:::
+::::
+
+## The Assignment Operator
+
+\
+
+The **assignment operator [<-]** is used to [assign values to objects]{.underline}.
+The following lines of code are read as “___ gets the value of ___”.
+
+\
+
+::: {.columns}
+::: {.column style = "width: 50%; font-size: 60%;"}
+
+```{r}
+#| echo: true
+
+x <- 42
+y <- 5
+
+x + y
+```
+
+|           | **Windows** | **Mac** |
+|-----------|:------------|------------|
+| Shortcut  | Alt + -     | Option + - |
+
+
+: Demonstration of pipe table syntax
+
+:::
+
+::: {.column width="50%"}
+
+![](assign.png){width="70%" fig-align="center"}
+
+:::
+::::
+
+## PSA: Anticlimatic
+
+After assigning a value to an object, R does not automatically show it in your console. It **does** populate in the [Environment Pane]. Double check your object exists by typing the name of the object or checking the **local environment.** Note, it must exist locally to be used in other observations. 
+
+```{r}
+#| echo: true
+
+fabulous <- "pot sherds"
+fabulous
+```
+
+
+## Common Problems
+
+\
+
+Quotation marks and parentheses must come in pairs!
+
+\
+
+R will "tell you" with a [+] sign...
+
+```{r}
+#| echo: true
+#| eval: false
+
+x <- "hello
++
++
++
+```
+
+**Solution:** Press [Esc] to cancel that line of code and start again.
+
+## Getting Help
+
+*   The `?` followed by some function or object name searches specific documentation. This is the same as the function `help()`
+
+```{r}
+#| echo: true
+?sum
+help(sum)
+```
+
+*   The `??` followed by some word or phrase is a broader search function and searches all documentation in memory. This is shorthand for `help.search()`
+
+```{r}
+#| echo: true
+??"linear model"
+help.search("linear model")
+```
+
+## Tidyverse Style Guide
+
+Canyoureadthissentence?
+
+*   After function names, do not leave a space
+
+*   Before and after operator (+, -, <-, *, /), leave a space
+
+*   Put a space after a comma, not before
+
+*   Use consistent style --> whatever that may be...
+
+\
+
+*   https://style.tidyverse.org/
+
+## Begin a New Atomic Habit
+
+
+1.  Open RStudio and type “Good morning, R” into the console. That’s it. Seriously.
+
+2.  Write code for 5 minutes
+
+3.  Use one new function. Reading the help page counts.
+
+4.  Make a single commit on git.
+
+5.  Be mundane.
