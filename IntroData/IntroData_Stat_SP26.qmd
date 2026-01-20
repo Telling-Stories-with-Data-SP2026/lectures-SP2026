@@ -1,0 +1,197 @@
+---
+title: "Introduction to Data"
+subtitle: "Spring 2026"
+author: ""
+format: 
+  revealjs:
+    theme: moon
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## What the **** are data?
+
+***Data are a means to represent the world***
+
+![](data_types.png)
+
+# Context Matters
+
+## Semantics
+
+* Row = observation, record, case, example, instance, pattern, sample
+* Columns = variable, field, feature, attribute, input, predictor, dimension
+
+![](tabular.jpg){fig-align="center"}
+
+## 
+
+![](data_info.png){fig-align="center"}
+
+## Categorical Data
+
+* **Nominal:** Unordered category
+* **Ordinal:** Ordered category
+* Both can be [binary]{.underline} or [multinomial]{.underline}
+
+![](cat_data.jpg){fig-align="center"}
+
+## Numeric Data
+
+* **Continuous:** Can take on any number
+  * **Interval:** Distance between values are equal and meaningful
+    * Numbers are 'arbitrary' and lack a 0 point
+    * IQ, temperature, etc.
+  * **Ratio:** Defined 0 point. Cannot fall below 0.
+* **Discrete:** Can only take on certain numbers. There are 'gaps' between numbers. 
+  * Counts & Integers (whole numbers)
+  
+##
+
+![](quant.png){fig-align="center"}
+
+## A Note about Research Design
+
+* **Qualitative Research:** Descriptive statements to seek answers
+* **Quantitative research:** measurements to seek answers from qualitative or quantitative data
+  * ***Data Science***
+  
+
+
+* **Less precise:** Qualitative / categorical
+* **More precise:** Quantitative / continuous
+
+# Data Types & R
+
+## Common Data Types
+
+| Type     | Definition | Example |
+|----------|----------|----------|
+| Double   | Whole or floating number | 5 or 5.73|
+| Integer  | Whole number             | 5, 2, 3L |
+| Character| Individual or strings of non-numbers|"c", "cat", "cat in the hat" |
+| Factor   | Categorical or discrete variables | M/F, S/M/L |
+| Boolean  | Binary Categories | T/F |
+
+## Data Type in R
+
+> Numbers
+
+```{r}
+# Numbers
+c(4.12, 4.57, 5.00, 17.00)
+```
+
+> Characters
+
+```{r}
+c("M", "male", "F", "cat", "Cat-Dog")
+```
+
+> Factors
+
+```{r}
+factors <- as.factor(c("M", "M", "F", "M"))
+factors
+```
+
+> Boolean
+
+```{r}
+c(TRUE, FALSE, T, F)
+```
+
+## Special Data Types
+
+\
+\
+\
+
+```{r}
+NULL
+
+NA
+
+NaN
+
+Inf
+```
+
+## Data Modes
+
+Each variable / object has a data mode that umbrellas by data type.
+
+::::{.columns}
+
+::: {.column width = "50%"}
+**Numeric:**
+* Both *integers* and *doubles*
+* Includes *factors*
+
+**Character:**
+* *Characters* and *strings*
+
+**Logical:**
+* Boolean TRUE and FALSE
+
+:::
+
+:::{.column width = "50%"}
+
+The `mode()` function returns the type of data mode. 
+
+```{r}
+#| echo: true
+
+mode(42)
+
+a <- "beer"
+mode(a)
+
+mode(T)
+
+mode(as.factor("M"))
+```
+
+
+:::
+
+::::
+
+## Checking and Converting
+
+![](modes.png){fig-align="center"}
+
+##
+
+```{r}
+#| echo: true
+
+is.numeric(2)
+```
+
+```{r}
+#| error: true
+#| echo: true
+
+is.numeric(a)
+```
+
+```{r}
+#| echo: true
+
+is.character("a")
+```
+
+```{r}
+#| echo: true
+
+as.character(4)
+as.numeric(4)
+```
+
