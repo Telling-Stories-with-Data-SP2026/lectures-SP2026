@@ -15,6 +15,13 @@ editor_options:
   chunk_output_type: console
 ---
 
+## To start class
+
+1. Clone your week 2 repo to your machine.
+2. Open a file to keep notes in - either a qmd or script.
+3. Ensure file is saved in the project folder per week.
+4. Repeat.
+
 ## What the **** are data?
 
 ***Data are a means to represent the world***
