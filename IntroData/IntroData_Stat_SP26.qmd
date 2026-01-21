@@ -10,6 +10,7 @@ format:
     chalkboard: false # Great for drawing during stats lectures
     incremental: false # Bullet points appear one by one
     embed-resources: true
+    df-print: kable
 editor_options: 
   chunk_output_type: console
 ---
@@ -169,6 +170,14 @@ mode(as.factor("M"))
 
 ##
 
+::::{.columns}
+
+:::{.column width = "50%"}
+
+\
+\
+\
+
 ```{r}
 #| echo: true
 
@@ -193,5 +202,310 @@ is.character("a")
 
 as.character(4)
 as.numeric(4)
+```
+
+:::
+
+:::{.column width = "50%" font-size = "smaller"}
+
+
+* It is often useful to make discrete categories (strings) into a ***factor***. This allows for ease in analyses and visualizations. 
+  
+```{r}
+#| echo: true
+
+fac <- c("M", "F")
+mode(fac)
+fac <- factor(fac)
+fac
+is.factor(fac)
+```
+
+:::
+
+::::
+
+# Data Structures
+
+## But First! Importing Data!
+
+* **Option 1:** Environment Pane > Import
+  * Point and click
+
+* **Option 2:** Code!
+
+```{r}
+#| echo: true
+#| eval: false
+
+data <- read.csv(...) # Base R
+
+library(readr)
+read_csv(...)
+
+library(readxl)
+read_xls(...)
+```
+
+```{r}
+#| echo: true
+
+dat <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-01/pokemon_df.csv')
+```
+
+##
+
+```{r}
+dplyr::glimpse(dat)
+```
+
+## Data Structures
+
+![](data_structures.jpg){fig-align="center"}
+
+## Vector == 1 Dimension
+
+* All elements have the same `mode`.
+
+::::{.columns}
+
+::: {.column width = "50%"}
+
+```{r}
+dat[,c("pokemon", "type_1")] |> head()
+```
+
+
+:::
+
+::: {.column width = "50%"}
+
+* The `c()` function combines arguments into a vector.
+
+```{r}
+#| echo: true
+
+v <- c(1, 2, 3)
+w <- c(10, 11, 12)
+c(v, w)
+```
+
+
+```{r}
+#| echo: true
+
+vec <- c("this", "is", "a", "vector")
+vec
+```
+
+:::
+
+::::
+
+## Matrix == 2 dimensions, same mode
+
+Vectors combined together.
+
+::::{.columns}
+
+::: {.column width = "60%"}
+
+```{r}
+dat[,c("pokemon", "type_1", "type_2")] |> head()
+```
+
+
+:::
+
+::: {.column width = "40%"}
+
+* `matrix()`  combines vectors.
+
+`matrix(data=NA, nrow=1, ncol=1, byrow=F, dimnames=F)`
+
+```{r}
+#| echo: true
+
+matrix(c(v, 4, 5, 6), nrow=2, ncol=2, byrow=T)
+
+```
+
+:::
+
+::::
+
+## Data Frames == 2 dimensions, different modes
+
+* ***AKA a tibble***
+* Most common data R data structure.
+* Rectangular data [Rows X columns]
+* Each column has a ***single*** mode.(AKA column = vector)
+
+```{r}
+dat[,c("pokemon", "type_1", "hp")] |> head( n = 3)
+```
+
+##
+
+![](df.png){fig-align="center"}
+
+## Arrays and Lists: 3+ Dimensions
+
+* **Array:** = Many matrices into 1 object / container.
+  * 1 data mode
+  
+* **List:** = Combination of all data structures
+  * Multiple data modes & types
+  * ***Complex*** but incredibly [***useful***]{.underline}
+  
+* Remember, there is a `function` for that!
+
+```{r}
+#| eval: false
+#| echo: true
+
+array(...)
+data.frame(...)
+list(...)
+
+# is.[...] / as.[...]
+```
+
+# Note!
+
+* ***R*** is a computer programming [language]{.underline}
+
+  * Languages have [**dialects**]{.underline}
+  
+    * ***Primary / Base:*** Pre-loaded
+    * ***Others:*** Pull from `library()`
+    
+* You have to walk before you can run... we will start with `base`...
+* Remember ***R*** can only do what you ask it! It is [***hyper***]{.underline} literal
+
+# Exploring Data
+
+## Take a Peak {.smaller}
+
+* `head(x, n=6): return the first n elements`
+* `tail(x, n=6): return the last n elements`
+
+```{r}
+#| echo: true
+
+head(dat, n = 3)
+```
+
+```{r}
+#| echo: true
+
+tail(dat, n = 2)
+```
+
+## Check the Structure
+
+* `dim(x)`: return the dimensions of an object 
+  * Matrix, data frame, or array
+  * rows, columns, (depth)
+
+```{r}
+#| echo: true
+
+dim(dat)
+```
+
+```{r}
+#| echo: true
+
+mat <- matrix(c(1, 2, 3, 4, 5, 6), nrow=3, ncol=2)
+dim(mat)
+```
+
+```{r}
+#| echo: true
+#| error: true
+
+## WARNING
+
+a <- c(1, 2, 3, 4)
+dim(a)
+```
+
+## Check the Structure
+
+* Universal check
+
+```{r}
+#| echo: true
+
+str(a)
+```
+
+
+```{r}
+#| echo: true
+
+str(dat)
+```
+
+## Indexing Data
+
+:::: {.columns}
+
+::: {.column width = "40%"}
+
+* **Index:** = an address to a value(s)
+
+\
+
+```{r}
+#| echo: true
+
+# Vectors
+b <- c(1, 3, 5, 7, 9)
+b
+b[3]
+```
+
+:::
+
+::: {.column width = "60%"}
+
+* **Matrices / DF:**
+  * 2 dimensions == 2 index values
+  * ***ALWAYS ROWS x COLUMNS***
+  
+![](index.png)
+
+:::
+
+::::
+
+##
+
+```{r}
+head(dat, 3)
+```
+
+```{r}
+#| echo: true
+
+dat[2,1]
+```
+
+```{r}
+#| echo: true
+
+
+dat[2, 1:3]
+```
+
+## Get a Summary
+
+* `summary()` returns the summary statistics for an object.
+
+```{r}
+#| echo: true
+summary(dat[,c(2,4,5)])
 ```
 
