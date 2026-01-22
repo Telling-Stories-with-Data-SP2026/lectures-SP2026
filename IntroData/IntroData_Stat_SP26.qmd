@@ -516,3 +516,103 @@ dat[2, 1:3]
 summary(dat[,c(2,4,5)])
 ```
 
+# Reformatting Data
+
+## Names
+
+* `names()`: Dataframe or list
+* `colnames()`: Dataframe or matrix
+
+```{r}
+#| echo: true
+
+colnames(dat)
+```
+
+
+***NB:*** These can be useful to get index values of columns.
+
+## Selecting Columns - 1 Column {.smaller}
+
+***Remember, a column of data is a vector with 1 mode.***
+
+* Some functions may require you to input a vector
+* To select only 1 column:
+  * Matrix:
+    * Index notation - e.g., `dat[,5]`
+  * Dataframe:
+    * `$` - e.g., `dat$hp`
+    * Index notation 1 - e.g., `dat[[9]]` or `dat[["hp"]]`
+      * Note - the goal here is to return a **vector**. You can use index notation such that `dat[,5]` but it will return a dataframe and not a vector. 
+      
+##
+
+```{r}
+#| echo: true
+
+head(dat$pokemon)
+```
+
+```{r}
+#| echo: true
+
+head(dat[["pokemon"]])
+```
+
+```{r}
+#| echo: true
+
+head(dat[[2]])
+```
+
+```{r}
+#| echo: true
+
+head(dat[2], n = 3)
+```
+
+## Selecting Columns 2+
+
+***Maintains dataframe-ness or matrix shape***
+
+* Always using **Index Notation** `[ ]`
+
+```{r}
+#| echo: true
+
+head(dat[c(1,4,5)], n = 2)
+```
+
+```{r}
+#| echo: true
+
+head(dat[,c(1,4,5)], n = 2)
+```
+
+##
+
+```{r}
+#| echo: true
+
+head(dat[,3:7])
+```
+
+##
+
+```{r}
+#| echo: true
+
+summary(dat[,4:7])
+```
+
+```{r}
+#| echo: true
+
+dat$type_1 <- as.factor(dat$type_1)
+
+summary(dat[,4:7])
+```
+
+
+# Lab Time!
+
