@@ -1,0 +1,310 @@
+---
+title: "Week 3 - Data Munge + Tidyverse"
+subtitle: "Spring 2026"
+author: ""
+format: 
+  revealjs:
+    theme: solarized
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Prologue
+
+* You will all develop different coding habits and preferences. 
+
+* You can do ***everything*** using Base R functionality.
+
+  * If this is you, stick to it. I am about efficiency. Not training you to all code like me. 
+  
+* That said, I *think* we can become  `tidyR`
+
+  * PSA: This is a new dialect. Some may say, a new ***language***. Your brain can speak more than one language at once. 
+  
+# The Tidyverse {.smaller}
+
+## Setup
+
+**Package Installation**
+
+**This step only needs to be completed once**
+
+  ***Option A:*** In your console or coding environment...
+
+```{r}
+#| echo: true
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("magrittr")
+```
+
+  ***Option B:*** In your `Files / Plots / Help` Pane -
+  
+* Click Packages > Install > Type in package names under Packages (leave everything unchanged) 
+    
+**This step must be completed everytime you want to use Tidyverse**
+
+```{r}
+#| echo: true
+#| warning: false
+
+library(tidyverse)
+library(magrittr)
+```
+
+##
+
+\
+\
+
+**If you want to follow along on the slides...**
+
+Import `howells.csv`. This will be in your data folder under Week 3. 
+
+PSA - You will have to clone your Week 3 repository. 
+
+```{r}
+#| echo: true
+
+howells <- read.csv("data/howells.csv")
+```
+
+
+## dplyr
+
+The 'engine' behind much of this ecosystem. Is the `dplyr` package.
+
+Everything we do this week will follow the same form:
+
+* The first argument is some `data.frame`
+* Subsequent arguments say what to do with said `data.frame`
+* We can now refer to columns without indexing or using the `$` sign
+* The result **will always** be a dataframe.
+  
+## Key Feature: The Pipe %>%
+
+* `dplyr` contains tools for subsetting and manipulating data. 
+
+* This ***pipeline*** is completed from left to right and strung together with the pipe operator `%>%`
+
+* Some notes:
+  * Base R has a pipe operator as well `|>`. These can generally work interchangeably...
+  * Other related packages have renditions of the pipe to do specific things. 
+    * For example, the `magrittr` package uses `%<>%` to make object changes permanent (more later...)
+    
+## Rules {.smaller}
+
+* All functions are read ***left to right***. Order matters. Also, previous commands matter.
+
+* With pipes, the next function in line uses the data as manipulated from the previous function.
+
+* `dplyr` never modifies the original data set. It just returns a new `data.frame` object. 
+  * If you want to `assign` your changes, you must use the assignment operator
+  * `newdf <- old_df %>% some dplyr code`
+* If you want to manipulate the same object and ***not*** create a new object, use the magrittr pipe
+  * `old_df %<>% some dplyr code`
+
+
+\
+
+In sentence form, the `%>%` equates to the word then...
+
+```{r}
+#| echo: true
+#| eval: false
+
+2*egg %>% add(sugar) %>% whisk() %>%add(milk) %>% whisk() %>% add(flour) %>% (...)
+
+```
+
+## An Example
+
+```{r}
+#| echo: true
+
+my_subset <- howells %>% 
+	select(Population, Sex, XCB) %>% filter(Population == "PERU") %>% arrange(XCB)
+
+head(my_subset, 1)
+
+```
+
+## The Backbone
+
+* `select`
+* `filter()`
+* `rename()`
+* `slice()`
+* `arrange()`
+* `mutate()`
+* `transmute()`
+* `group_by()`
+
+## dplyr::select
+
+Return only a subset of columns. If multiple columns are supplied, they are all used.
+
+Select columns by name:
+```{r}
+#| echo: true
+
+howells2 <- howells %>% select(ID, Sex, Population)
+```
+
+**NOTE**
+
+* Columns are returned in the order specified. 
+* Remember, to create a new object.
+
+##
+
+
+:::{.panel-tabset}
+
+## Check Names
+
+```{r}
+#| echo: true
+
+names(howells[1:50])
+```
+
+## Create Code
+
+```{r}
+#| echo: true
+
+howells %>% select(ID:XCB) %>% head()
+```
+
+## Mix It Up
+
+```{r}
+#| echo: true
+
+howells %>% select(ID:Population, BBH:ZYB, NPH:JUB) %>% head()
+```
+
+:::
+
+## dplyr::select()
+
+Columns can be renamed at the time of selection:
+
+**Syntax:**
+
+`select(new_name = old_name)`
+
+\
+
+```{r}
+#| echo: true
+
+names(howells[1:4])
+```
+
+```{r}
+#| echo: true
+
+howells %>% select(id=ID, sex=Sex, pop=Population) %>% head()
+
+```
+
+## dplyr::select()
+
+You ***do not*** need to modify everyone column...
+
+```{r}
+#| echo: true
+
+howells %>% select(id=ID, sex=Sex, pop=Population, GOL) %>% head()
+```
+
+## dplyr::rename()
+
+`rename()` renames columns using the same syntax as select() but does not drop the unspecified columns.
+
+* AKA it **does not** `select`
+
+```{r}
+#| echo: true
+
+howells %>% rename(Specimen=ID, sex=Sex, pop=Population) %>% head(4) 
+```
+
+
+## dplyr::select()
+
+A user can also **exclude** columns using the `select()` function:
+
+::: {.panel-tabset}
+
+## One Column
+
+```{r}
+#| echo: true
+
+howells %>% select(-ID) %>% head()
+```
+
+## Inclusive Range
+
+```{r}
+#| echo: true
+
+howells %>% select(-(OCF:SLA)) %>% head()
+```
+
+## Specified Range
+
+```{r}
+#| echo: true
+
+howells %>% select(-c(OCF, RFA, SLA)) %>% head()
+```
+
+## By Number
+
+```{r}
+#| echo: true
+
+# howells %>% select(!(50:86)) %>% head()
+howells %>% select(-(50:86)) %>% head()
+
+```
+
+:::
+
+## Big Data Capabilities and Selecting Columns {.smaller}
+
+* `starts_with()` = select columns that start with a character string
+* `ends_with()` = select columns that end with a character string
+* `contains()` = select columns that contain a character string
+* `matches()` = select columns that match a regular expression
+* `one_of()` = select column names that are from a group of names
+
+```{r}
+#| echo: true
+
+howells %>% select(starts_with("A")) %>% head()
+```
+
+# Practice!
+
+##
+
+If you have not done so, Clone your Week 3 repo, create a qmd or script, load `tidyverse` or `dplyr` and import `howells`.
+
+Use `select()` to make a subset of `howells` whose `head()` looks like this:
+
+```{r}
+howells %>% select(ID, Sex, Population, GOL, NOL, DKB) %>% head()
+```
+
+* BONUS: Rename the columns and create a new object. 
