@@ -614,5 +614,138 @@ summary(dat[,4:7])
 ```
 
 
-# Lab Time!
+## Renaming Columns
 
+* Remember `names()` or `colnames()`. 
+
+```{r}
+#| echo: true
+
+names(dat)
+```
+
+```{r}
+#| echo: true
+
+
+names(dat)[5] <- "WT"
+
+names(dat)
+```
+
+##
+
+```{r}
+#| echo: true
+
+names(dat)[4:6] <- c("HT", "WGT", "EXP")
+names(dat)
+```
+
+```{r}
+#| echo: true
+
+
+names(dat)[c(9, 11, 14)] <- c("HP", "DEF", "SPD")
+names(dat)
+```
+
+## Recoding a Single Value {.smaller}
+
+* Remember how to find the 'address' of a certain value in your data. 
+  
+```{r}
+#| echo: true
+
+dat[1:3, c(2, 4, 5)]
+```
+
+```{r}
+#| echo: true
+
+dat[3,4] <- NA
+
+dat[1:3, c(2, 4, 5)]
+```
+
+## Combining Rows {.smaller}
+
+* `rbind()` combines data **vertically**
+  * All datasets to be combined must share the ***same number*** of columns
+    *  Note, `rbind` will work if columns are out of order but the number is the same. It is up to the User to ensure they match.
+    
+```{r}
+#| echo: true
+
+dat1 <- dat[1:2, 1:3]
+dat2 <- dat[7:9, 1:3]
+
+dim(dat1)
+dim(dat2)
+
+```
+
+```{r}
+#| echo: true
+dat3 <- rbind(dat1, dat2)
+dim(dat3)
+```
+
+## Combining Columns {.smaller}
+
+* `cbind()` combines data **horizontally**
+  * Think of this as putting together 2 datasets with different columns but **the same rows**
+    * I.E. - You are adding on features that were collected per observation
+
+```{r}
+#| echo: true
+
+dat4 <- dat[1:2, c(2, 7)]
+dat5 <- dat[1:2, 4:6]
+
+colnames(dat4)
+colnames(dat5)
+
+```
+
+```{r}
+#| echo: true
+dat6 <- cbind(dat4, dat5)
+colnames(dat6)
+```
+
+## Combining Columns Using Paste()
+
+* Let's say you have features in your dataset you want to aggregate into a new identifier. 
+  * `Sex` + `Population` 
+  * `Age_Group` + `Political_Party`
+  
+```{r}
+#| echo: true
+
+# Let's make a new object for ease
+
+poke2 <- dat[,c(2,7)]
+str(poke2)
+```
+
+##
+
+```{r}
+#| echo: true
+
+# Now let's make a new column!
+
+poke2$name_type <- paste(poke2$pokemon, poke2$type1, sep = "_")
+colnames(poke2)
+```
+
+```{r}
+#| echo: true
+
+head(poke2, n = 3)
+```
+
+##
+
+![](baser.png){fig-align="center"}
