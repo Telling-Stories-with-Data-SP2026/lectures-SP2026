@@ -308,3 +308,407 @@ howells %>% select(ID, Sex, Population, GOL, NOL, DKB) %>% head()
 ```
 
 * BONUS: Rename the columns and create a new object. 
+
+##
+
+```{r}
+#| eval: false
+#| echo: true
+
+howells %>% select(ID, Sex, Population, GOL, NOL, DKB) %>% head()
+```
+
+## dplr::filter()
+
+`filter()` allows you to select a subset of [rows]{.underliner} from the *dataframe*
+
+We do this by forming expressions:
+
+* [,] indicates **AND**
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(Population=="SANTA CRUZ",  Sex=="M")
+```
+
+* [|] indicates **OR**
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(Population =="SANTA CRUZ" |  Population =="ARIKARA")
+```
+
+## Logical Subsets {.smaller}
+
+`filter()` uses logical subset operators:
+
+* & **AND**
+* | **OR**
+* == **Test of Equivalence**
+* != **Test of Non-Equivalence**
+* `>` **greater than**
+* < **less than**
+* `>=` **greater than or equal**
+* <=  **less than or equal**
+
+## dplyr and %in%
+
+***Avoid using excessive operators AND / OR***
+
+> Instead of this:
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(Population=="SANTA CR" | Population=="ARIKARA" | Population=="JOMON" | Population=="ESKIMO")
+```
+
+> Do this:
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(Population %in% c("SANTA CR", "ARIKARA", "JOMON", "ESKIMO"))
+```
+
+## dplyr and %in%
+
+***Also works with numbers***
+
+[**NOTE:** when filtering strings/characters be sure to surround with 'word' or "word"]{font-color="red"}
+
+> Instead of this:
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(PopNum==3 | PopNum==14)
+```
+
+> Do this:
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(PopNum %in% c(3, 14))
+```
+
+## Including and Excluding
+
+> To include:
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(PopNum %in% c(3, 14)) %>% select(1:10)
+```
+
+> To exclude:
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(!PopNum %in% c(3, 14)) %>% select(1:10)
+```
+
+## Stringing things Together
+
+> Use only 1 filter command and use th [,] to separate arguments
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(PopNum %in% c(3, 14), Sex=="M")
+
+howells %>% filter(PopNum %in% c(3,14), Sex %in% c("M", "F"))
+
+howells %>% filter(PopNum %in% c(3, 14), Sex %in% c("M", "F"), ID != 973)
+```
+
+## PSA: Order Matters
+
+***Why does this not work?***
+
+```{r}
+#| echo: true
+#| error: true
+#| warning: true
+
+howells %>% select(ID, Sex) %>% filter(Population %in% c("SANTA CR", "ARIKARA"), Sex == "M")
+```
+
+## {.bigger}
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% select(ID, Sex, Population) %>% filter(Population %in% c("SANTA CR", "ARIKARA"), Sex == "M")
+```
+
+\
+\
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(Population %in% c("SANTA CR", "ARIKARA"), Sex == "M") %>% select(ID, Sex, Population)
+```
+
+## PRACTICE - howells dataset
+
+1.  Make a subset of only females from Ainu and Peru
+  - Hint: Pay attention to how these are coded. Use `unique(howells$Population)` or **AFTER** making the column a factor, use `levels(howells$Population)`
+  
+2.  In this subset, return individuals who have a maximum cranial breadth (XCB) greater than 130
+
+3.  Why does this line of code not work?
+
+```{r}
+#| echo: true
+#| error: true
+#| warning: true
+
+howells %>% filter(Popnum %in% c(3,14), sex %in% c("male","female"))
+```
+
+## ANSWER
+
+**1.**
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(Sex=="F", Population %in% c('AINU','PERU'))
+```
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(Sex=='F', Population=='AINU' | Population=='PERU')
+```
+
+**2.**
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% filter(Sex=='F', Population %in% c('AINU','PERU'), XCB>130)
+```
+
+## dplyr::mutate
+
+Adds a new column that is a function of existing columns. Multiple inputs create multiple columns.
+
+```{r}
+#| echo: true
+#| eval: true
+
+howells2 <- howells %>% select(Sex, Population, NLB, DKB, ZYB, FMB) %>% mutate(eye_ratio = DKB / FMB, nose_ratio = NLB / ZYB)
+
+head(howells2)
+```
+
+## magrittr: %<>%
+
+Typical practice is to assign new objects. For example:
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells2 <- howells %>% select(Sex, Population, NLB, DKB, ZYB, FMB) %>% mutate(eye_ratio = DKB / FMB, nose_ratio = NLB / ZYB)
+```
+
+But, sometimes we do not want to do this. We can simplify and modify the exisiting DF with the magrittr pipe `%<>%`
+
+```{r}
+#| echo: true
+#| eval: true
+
+library(magrittr)
+
+howells %<>% mutate(eyeRat=DKB/FMB, noseRat=NLB/ZYB)
+howells %>% select(eyeRat, noseRat) %>% head()
+
+```
+
+##
+
+```{r}
+#| eval: true
+#| echo: true
+
+howells %<>% mutate(GOL_center = GOL / mean(GOL)) %>% select(ID, Sex, Population, GOL, BBH, XCB, GOL_center)
+
+head(howells)
+```
+
+## dplyr:: mutate_at
+
+***What if we want to apply some function over multiple columns?***
+
+```{r}
+#| echo: true
+#| eval: true
+
+str(howells)
+```
+
+##
+
+The world is your oyster...
+
+* `mutate`
+* `mutate_at`
+* `mutate_all`
+* OTHERS
+
+```{r}
+#| echo: true
+#| eval: true
+
+cols <- c(2:3)
+howells2 <- howells %>% mutate_at(cols, factor)
+str(howells2)
+```
+
+## PRACTICE!
+
+* Using the howells dataset
+
+1.  Create a new variable called VaultSize where VaultSize = (GOL * BBH * XCB)^(1/3)
+
+2.  Combine Sex and Population to create a PopSex column
+  * Hint: Use `paste` inside your `mutate` function
+
+3.  Print the top 3 rows of the PopSex column
+
+##
+
+**1.**
+
+```{r}
+#| echo: true
+#| eval: true
+
+howells %<>% mutate(VaultSize=(GOL*BBH*XCB)^(1/3))
+```
+
+**2.**
+
+```{r}
+#| echo: true
+#| eval: true
+
+howells_popsex <- howells %>% mutate(PopSex=paste(Sex, Population, sep=""))
+
+```
+
+**3.**
+
+```{r}
+#| echo: true
+#| eval: true
+
+head(select(howells_popsex, PopSex), 3)
+
+# head(howells_popsex$PopSex, 3)
+```
+
+## Concept Check {.bigger}
+
+What does this do?
+
+```{r}
+#| echo: true
+#| eval: false
+
+sub <- saHeight %>% filter(age_y < 5 & age_y > 0, cat_num != 125) %>% select(sex, ancestry, height_2)
+```
+
+## group_by and summarize
+
+* `group_by()` groups data for further manipulation
+* `summarize()` calculates new values for each group
+
+```{r}
+#| echo: true
+#| eval: true
+
+pop_count <- howells %>% group_by(Population) %>% summarize(count = n())
+
+head(pop_count, 4)
+```
+
+**SAVE THIS**
+
+```{r}
+#| echo: true
+#| eval: false
+write.csv(pop_count, "pop_count.csv")
+```
+
+## Summarize Options
+
+* Center: `mean()` or `median()`
+* Spread: `sd()`, `IQR()`, `mad()`
+* Range: `min()`, `max()`, `quantile()`
+* Position: `first()`, `last()`, `nth()`
+* Count: `n()`, `n_distinct()`
+* Logical: `any()`, `all()`
+
+## 
+
+```{r}
+#| echo: true
+#| eval: true
+
+howells %>% group_by(Population) %>% summarise(mean = mean(GOL), n = n()) %>% data.frame()
+```
+
+## Missing Data
+
+* `na.omit()` removes incomplete cases from a dataset and can be piped to remove incomplete cases
+
+```{r}
+#| echo: true
+#| eval: true
+
+howells[1,1] <- NA
+head(howells[,1:3],2)
+
+howells %>% select(1:3) %>% na.omit() %>% head()
+
+```
+
+## Recoding Missing Data
+
+* `na_if()` converts a given value to an NA
+
+* Let's say we code 999 as NA in our dataset.
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells %>% na_if(999)  # modifies an entire df
+na_if(howells$GOL, 999)  # modifies a vector
+
+```
+

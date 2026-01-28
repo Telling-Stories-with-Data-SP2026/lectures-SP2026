@@ -1523,6 +1523,421 @@ margin-right: 0; }
 <ul>
 <li>BONUS: Rename the columns and create a new object.</li>
 </ul>
+</section>
+<section id="section-3" class="slide level2">
+<h2></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">select</span>(ID, Sex, Population, GOL, NOL, DKB) <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="dplrfilter" class="slide level2">
+<h2>dplr::filter()</h2>
+<p><code>filter()</code> allows you to select a subset of <span class="underliner">rows</span> from the <em>dataframe</em></p>
+<p>We do this by forming expressions:</p>
+<ul>
+<li>[,] indicates <strong>AND</strong></li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population<span class="sc">==</span><span class="st">&quot;SANTA CRUZ&quot;</span>,  Sex<span class="sc">==</span><span class="st">&quot;M&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>[|] indicates <strong>OR</strong></li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population <span class="sc">==</span><span class="st">&quot;SANTA CRUZ&quot;</span> <span class="sc">|</span>  Population <span class="sc">==</span><span class="st">&quot;ARIKARA&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="logical-subsets" class="slide level2 smaller">
+<h2>Logical Subsets</h2>
+<p><code>filter()</code> uses logical subset operators:</p>
+<ul>
+<li>&amp; <strong>AND</strong></li>
+<li><div class="line-block"><strong>OR</strong></div></li>
+<li>== <strong>Test of Equivalence</strong></li>
+<li>!= <strong>Test of Non-Equivalence</strong></li>
+<li><code>&gt;</code> <strong>greater than</strong></li>
+<li>&lt; <strong>less than</strong></li>
+<li><code>&gt;=</code> <strong>greater than or equal</strong></li>
+<li>&lt;= <strong>less than or equal</strong></li>
+</ul>
+</section>
+<section id="dplyr-and-in" class="slide level2">
+<h2>dplyr and %in%</h2>
+<p><strong><em>Avoid using excessive operators AND / OR</em></strong></p>
+<blockquote>
+<p>Instead of this:</p>
+</blockquote>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population<span class="sc">==</span><span class="st">&quot;SANTA CR&quot;</span> <span class="sc">|</span> Population<span class="sc">==</span><span class="st">&quot;ARIKARA&quot;</span> <span class="sc">|</span> Population<span class="sc">==</span><span class="st">&quot;JOMON&quot;</span> <span class="sc">|</span> Population<span class="sc">==</span><span class="st">&quot;ESKIMO&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<blockquote>
+<p>Do this:</p>
+</blockquote>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;SANTA CR&quot;</span>, <span class="st">&quot;ARIKARA&quot;</span>, <span class="st">&quot;JOMON&quot;</span>, <span class="st">&quot;ESKIMO&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="dplyr-and-in-1" class="slide level2">
+<h2>dplyr and %in%</h2>
+<p><strong><em>Also works with numbers</em></strong></p>
+<p><span data-font-color="red"><strong>NOTE:</strong> when filtering strings/characters be sure to surround with ‘word’ or “word”</span></p>
+<blockquote>
+<p>Instead of this:</p>
+</blockquote>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PopNum<span class="sc">==</span><span class="dv">3</span> <span class="sc">|</span> PopNum<span class="sc">==</span><span class="dv">14</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<blockquote>
+<p>Do this:</p>
+</blockquote>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PopNum <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">14</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="including-and-excluding" class="slide level2">
+<h2>Including and Excluding</h2>
+<blockquote>
+<p>To include:</p>
+</blockquote>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PopNum <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">14</span>)) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<blockquote>
+<p>To exclude:</p>
+</blockquote>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span>PopNum <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">14</span>)) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="stringing-things-together" class="slide level2">
+<h2>Stringing things Together</h2>
+<blockquote>
+<p>Use only 1 filter command and use th [,] to separate arguments</p>
+</blockquote>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PopNum <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">14</span>), Sex<span class="sc">==</span><span class="st">&quot;M&quot;</span>)</span>
+<span id="cb42-2"><a href></a></span>
+<span id="cb42-3"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PopNum <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">14</span>), Sex <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>))</span>
+<span id="cb42-4"><a href></a></span>
+<span id="cb42-5"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PopNum <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">14</span>), Sex <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>), ID <span class="sc">!=</span> <span class="dv">973</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="psa-order-matters" class="slide level2">
+<h2>PSA: Order Matters</h2>
+<p><strong><em>Why does this not work?</em></strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">select</span>(ID, Sex) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;SANTA CR&quot;</span>, <span class="st">&quot;ARIKARA&quot;</span>), Sex <span class="sc">==</span> <span class="st">&quot;M&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in `filter()`:
+ℹ In argument: `Population %in% c(&quot;SANTA CR&quot;, &quot;ARIKARA&quot;)`.
+Caused by error:
+! object &#39;Population&#39; not found</code></pre>
+</div>
+</div>
+</section>
+<section id="section-4" class="slide level2 bigger">
+<h2></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">select</span>(ID, Sex, Population) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;SANTA CR&quot;</span>, <span class="st">&quot;ARIKARA&quot;</span>), Sex <span class="sc">==</span> <span class="st">&quot;M&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><br>
+<br>
+</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;SANTA CR&quot;</span>, <span class="st">&quot;ARIKARA&quot;</span>), Sex <span class="sc">==</span> <span class="st">&quot;M&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(ID, Sex, Population)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="practice---howells-dataset" class="slide level2">
+<h2>PRACTICE - howells dataset</h2>
+<ol type="1">
+<li>Make a subset of only females from Ainu and Peru</li>
+</ol>
+<ul>
+<li>Hint: Pay attention to how these are coded. Use <code>unique(howells$Population)</code> or <strong>AFTER</strong> making the column a factor, use <code>levels(howells$Population)</code></li>
+</ul>
+<ol start="2" type="1">
+<li><p>In this subset, return individuals who have a maximum cranial breadth (XCB) greater than 130</p></li>
+<li><p>Why does this line of code not work?</p></li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Popnum <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">14</span>), sex <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;male&quot;</span>,<span class="st">&quot;female&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in `filter()`:
+ℹ In argument: `Popnum %in% c(3, 14)`.
+Caused by error:
+! object &#39;Popnum&#39; not found</code></pre>
+</div>
+</div>
+</section>
+<section id="answer" class="slide level2">
+<h2>ANSWER</h2>
+<p><strong>1.</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Sex<span class="sc">==</span><span class="st">&quot;F&quot;</span>, Population <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;AINU&#39;</span>,<span class="st">&#39;PERU&#39;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Sex<span class="sc">==</span><span class="st">&#39;F&#39;</span>, Population<span class="sc">==</span><span class="st">&#39;AINU&#39;</span> <span class="sc">|</span> Population<span class="sc">==</span><span class="st">&#39;PERU&#39;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>2.</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Sex<span class="sc">==</span><span class="st">&#39;F&#39;</span>, Population <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;AINU&#39;</span>,<span class="st">&#39;PERU&#39;</span>), XCB<span class="sc">&gt;</span><span class="dv">130</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="dplyrmutate" class="slide level2">
+<h2>dplyr::mutate</h2>
+<p>Adds a new column that is a function of existing columns. Multiple inputs create multiple columns.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href></a>howells2 <span class="ot">&lt;-</span> howells <span class="sc">%&gt;%</span> <span class="fu">select</span>(Sex, Population, NLB, DKB, ZYB, FMB) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">eye_ratio =</span> DKB <span class="sc">/</span> FMB, <span class="at">nose_ratio =</span> NLB <span class="sc">/</span> ZYB)</span>
+<span id="cb52-2"><a href></a></span>
+<span id="cb52-3"><a href></a><span class="fu">head</span>(howells2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Sex Population NLB DKB ZYB FMB eye_ratio nose_ratio
+1   M      NORSE  26  22 133 100 0.2200000  0.1954887
+2   M      NORSE  25  21 137  95 0.2210526  0.1824818
+3   M      NORSE  23  20 134  98 0.2040816  0.1716418
+4   M      NORSE  26  23 135  98 0.2346939  0.1925926
+5   M      NORSE  24  21 129  96 0.2187500  0.1860465
+6   M      NORSE  25  22 136 101 0.2178218  0.1838235</code></pre>
+</div>
+</div>
+</section>
+<section id="magrittr" class="slide level2">
+<h2>magrittr: %&lt;&gt;%</h2>
+<p>Typical practice is to assign new objects. For example:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href></a>howells2 <span class="ot">&lt;-</span> howells <span class="sc">%&gt;%</span> <span class="fu">select</span>(Sex, Population, NLB, DKB, ZYB, FMB) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">eye_ratio =</span> DKB <span class="sc">/</span> FMB, <span class="at">nose_ratio =</span> NLB <span class="sc">/</span> ZYB)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>But, sometimes we do not want to do this. We can simplify and modify the exisiting DF with the magrittr pipe <code>%&lt;&gt;%</code></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb55-2"><a href></a></span>
+<span id="cb55-3"><a href></a>howells <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(<span class="at">eyeRat=</span>DKB<span class="sc">/</span>FMB, <span class="at">noseRat=</span>NLB<span class="sc">/</span>ZYB)</span>
+<span id="cb55-4"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">select</span>(eyeRat, noseRat) <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     eyeRat   noseRat
+1 0.2200000 0.1954887
+2 0.2210526 0.1824818
+3 0.2040816 0.1716418
+4 0.2346939 0.1925926
+5 0.2187500 0.1860465
+6 0.2178218 0.1838235</code></pre>
+</div>
+</div>
+</section>
+<section id="section-5" class="slide level2">
+<h2></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href></a>howells <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(<span class="at">GOL_center =</span> GOL <span class="sc">/</span> <span class="fu">mean</span>(GOL)) <span class="sc">%&gt;%</span> <span class="fu">select</span>(ID, Sex, Population, GOL, BBH, XCB, GOL_center)</span>
+<span id="cb57-2"><a href></a></span>
+<span id="cb57-3"><a href></a><span class="fu">head</span>(howells)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ID Sex Population GOL BBH XCB GOL_center
+1  1   M      NORSE 189 135 143  1.0548503
+2  2   M      NORSE 182 139 145  1.0157818
+3  3   M      NORSE 191 123 140  1.0660127
+4  4   M      NORSE 191 127 141  1.0660127
+5  5   M      NORSE 178 128 138  0.9934569
+6  6   M      NORSE 194 132 139  1.0827564</code></pre>
+</div>
+</div>
+</section>
+<section id="dplyr-mutate_at" class="slide level2">
+<h2>dplyr:: mutate_at</h2>
+<p><strong><em>What if we want to apply some function over multiple columns?</em></strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href></a><span class="fu">str</span>(howells)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&#39;data.frame&#39;:   2524 obs. of  7 variables:
+ $ ID        : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ Sex       : chr  &quot;M&quot; &quot;M&quot; &quot;M&quot; &quot;M&quot; ...
+ $ Population: chr  &quot;NORSE&quot; &quot;NORSE&quot; &quot;NORSE&quot; &quot;NORSE&quot; ...
+ $ GOL       : int  189 182 191 191 178 194 186 186 186 189 ...
+ $ BBH       : int  135 139 123 127 128 132 122 130 134 131 ...
+ $ XCB       : int  143 145 140 141 138 139 143 141 141 144 ...
+ $ GOL_center: num  1.055 1.016 1.066 1.066 0.993 ...</code></pre>
+</div>
+</div>
+</section>
+<section id="section-6" class="slide level2">
+<h2></h2>
+<p>The world is your oyster…</p>
+<ul>
+<li><code>mutate</code></li>
+<li><code>mutate_at</code></li>
+<li><code>mutate_all</code></li>
+<li>OTHERS</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href></a>cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb61-2"><a href></a>howells2 <span class="ot">&lt;-</span> howells <span class="sc">%&gt;%</span> <span class="fu">mutate_at</span>(cols, factor)</span>
+<span id="cb61-3"><a href></a><span class="fu">str</span>(howells2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&#39;data.frame&#39;:   2524 obs. of  7 variables:
+ $ ID        : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ Sex       : Factor w/ 2 levels &quot;F&quot;,&quot;M&quot;: 2 2 2 2 2 2 2 2 2 2 ...
+ $ Population: Factor w/ 30 levels &quot;AINU&quot;,&quot;ANDAMAN&quot;,..: 20 20 20 20 20 20 20 20 20 20 ...
+ $ GOL       : int  189 182 191 191 178 194 186 186 186 189 ...
+ $ BBH       : int  135 139 123 127 128 132 122 130 134 131 ...
+ $ XCB       : int  143 145 140 141 138 139 143 141 141 144 ...
+ $ GOL_center: num  1.055 1.016 1.066 1.066 0.993 ...</code></pre>
+</div>
+</div>
+</section>
+<section id="practice-1" class="slide level2">
+<h2>PRACTICE!</h2>
+<ul>
+<li>Using the howells dataset</li>
+</ul>
+<ol type="1">
+<li><p>Create a new variable called VaultSize where VaultSize = (GOL * BBH * XCB)^(1/3)</p></li>
+<li><p>Combine Sex and Population to create a PopSex column</p></li>
+</ol>
+<ul>
+<li>Hint: Use <code>paste</code> inside your <code>mutate</code> function</li>
+</ul>
+<ol start="3" type="1">
+<li>Print the top 3 rows of the PopSex column</li>
+</ol>
+</section>
+<section id="section-7" class="slide level2">
+<h2></h2>
+<p><strong>1.</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href></a>howells <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(<span class="at">VaultSize=</span>(GOL<span class="sc">*</span>BBH<span class="sc">*</span>XCB)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>2.</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href></a>howells_popsex <span class="ot">&lt;-</span> howells <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">PopSex=</span><span class="fu">paste</span>(Sex, Population, <span class="at">sep=</span><span class="st">&quot;&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>3.</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href></a><span class="fu">head</span>(<span class="fu">select</span>(howells_popsex, PopSex), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  PopSex
+1 MNORSE
+2 MNORSE
+3 MNORSE</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href></a><span class="co"># head(howells_popsex$PopSex, 3)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="concept-check" class="slide level2 bigger">
+<h2>Concept Check</h2>
+<p>What does this do?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href></a>sub <span class="ot">&lt;-</span> saHeight <span class="sc">%&gt;%</span> <span class="fu">filter</span>(age_y <span class="sc">&lt;</span> <span class="dv">5</span> <span class="sc">&amp;</span> age_y <span class="sc">&gt;</span> <span class="dv">0</span>, cat_num <span class="sc">!=</span> <span class="dv">125</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(sex, ancestry, height_2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="group_by-and-summarize" class="slide level2">
+<h2>group_by and summarize</h2>
+<ul>
+<li><code>group_by()</code> groups data for further manipulation</li>
+<li><code>summarize()</code> calculates new values for each group</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href></a>pop_count <span class="ot">&lt;-</span> howells <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Population) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>())</span>
+<span id="cb69-2"><a href></a></span>
+<span id="cb69-3"><a href></a><span class="fu">head</span>(pop_count, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  Population count
+  &lt;chr&gt;      &lt;int&gt;
+1 AINU          86
+2 ANDAMAN       70
+3 ANYANG        42
+4 ARIKARA       69</code></pre>
+</div>
+</div>
+<p><strong>SAVE THIS</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href></a><span class="fu">write.csv</span>(pop_count, <span class="st">&quot;pop_count.csv&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="summarize-options" class="slide level2">
+<h2>Summarize Options</h2>
+<ul>
+<li>Center: <code>mean()</code> or <code>median()</code></li>
+<li>Spread: <code>sd()</code>, <code>IQR()</code>, <code>mad()</code></li>
+<li>Range: <code>min()</code>, <code>max()</code>, <code>quantile()</code></li>
+<li>Position: <code>first()</code>, <code>last()</code>, <code>nth()</code></li>
+<li>Count: <code>n()</code>, <code>n_distinct()</code></li>
+<li>Logical: <code>any()</code>, <code>all()</code></li>
+</ul>
+</section>
+<section id="section-8" class="slide level2">
+<h2></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Population) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(GOL), <span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Population     mean   n
+1        AINU 185.0116  86
+2     ANDAMAN 164.4857  70
+3      ANYANG 181.0000  42
+4     ARIKARA 176.2029  69
+5      ATAYAL 173.6170  47
+6    AUSTRALI 185.8416 101
+7        BERG 175.5596 109
+8      BURIAT 176.7798 109
+9     BUSHMAN 174.7444  90
+10      DOGON 173.5657  99
+11   EASTER I 187.2442  86
+12      EGYPT 180.8288 111
+13     ESKIMO 184.5556 108
+14       GUAM 180.7018  57
+15     HAINAN 173.7470  83
+16     MOKAPU 180.9600 100
+17    MORIORI 183.5556 108
+18    N JAPAN 178.6782  87
+19    N MAORI 186.6000  10
+20      NORSE 184.2273 110
+21       PERU 173.4818 110
+22   PHILLIPI 176.9200  50
+23    S JAPAN 177.3297  91
+24    S MAORI 187.1000  10
+25   SANTA CR 176.0000 102
+26   TASMANIA 181.7126  87
+27      TEITA 178.4096  83
+28      TOLAI 179.1364 110
+29    ZALAVAR 181.1429  98
+30       ZULU 182.3168 101</code></pre>
+</div>
+</div>
+</section>
+<section id="missing-data" class="slide level2">
+<h2>Missing Data</h2>
+<ul>
+<li><code>na.omit()</code> removes incomplete cases from a dataset and can be piped to remove incomplete cases</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href></a>howells[<span class="dv">1</span>,<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb74-2"><a href></a><span class="fu">head</span>(howells[,<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>],<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ID Sex Population
+1 NA   M      NORSE
+2  2   M      NORSE</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ID Sex Population
+2  2   M      NORSE
+3  3   M      NORSE
+4  4   M      NORSE
+5  5   M      NORSE
+6  6   M      NORSE
+7  7   M      NORSE</code></pre>
+</div>
+</div>
+</section>
+<section id="recoding-missing-data" class="slide level2">
+<h2>Recoding Missing Data</h2>
+<ul>
+<li><p><code>na_if()</code> converts a given value to an NA</p></li>
+<li><p>Let’s say we code 999 as NA in our dataset.</p></li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">na_if</span>(<span class="dv">999</span>)  <span class="co"># modifies an entire df</span></span>
+<span id="cb78-2"><a href></a><span class="fu">na_if</span>(howells<span class="sc">$</span>GOL, <span class="dv">999</span>)  <span class="co"># modifies a vector</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 
 </section></section>
     </div>
