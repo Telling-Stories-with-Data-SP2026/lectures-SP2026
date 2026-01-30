@@ -1938,6 +1938,97 @@ Caused by error:
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href></a>howells <span class="sc">%&gt;%</span> <span class="fu">na_if</span>(<span class="dv">999</span>)  <span class="co"># modifies an entire df</span></span>
 <span id="cb78-2"><a href></a><span class="fu">na_if</span>(howells<span class="sc">$</span>GOL, <span class="dv">999</span>)  <span class="co"># modifies a vector</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="dplyrrecode" class="slide level2">
+<h2>dplyr::recode()</h2>
+<ul>
+<li>Modifies levels of a factor</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href></a>howells<span class="sc">$</span>Sex <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">recode_factor</span>(howells<span class="sc">$</span>Sex, <span class="st">&#39;M&#39;</span> <span class="ot">=</span> <span class="st">&#39;Male&#39;</span>, <span class="st">&#39;F&#39;</span> <span class="ot">=</span> <span class="st">&#39;Female&#39;</span>)</span>
+<span id="cb79-2"><a href></a></span>
+<span id="cb79-3"><a href></a><span class="fu">head</span>(howells<span class="sc">$</span>Sex)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] Male Male Male Male Male Male
+Levels: Male Female</code></pre>
+</div>
+</div>
+<ul>
+<li>Syntax: <code>old_name = new_name</code></li>
+</ul>
+</section>
+<section id="upcase-downcase-column-names" class="slide level2">
+<h2>Upcase / Downcase Column Names</h2>
+<ul>
+<li>Downcase</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href></a><span class="fu">names</span>(howells) <span class="ot">&lt;-</span> <span class="fu">tolower</span>(<span class="fu">names</span>(howells))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>Upcase</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href></a><span class="fu">names</span>(howells) <span class="sc">%&lt;&gt;%</span> <span class="fu">toupper</span>(<span class="fu">names</span>(howells))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>Columns</li>
+</ul>
+<p><strong>PSA: Will change back to a STRING - AKA may need to change back to a factor</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href></a>howells<span class="sc">$</span>Population <span class="sc">%&lt;&gt;%</span> <span class="fu">tolower</span>() <span class="sc">%&gt;%</span> <span class="fu">factor</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="practice-2" class="slide level2">
+<h2>Practice</h2>
+<p><strong>Using <code>summarize()</code> and group_by()`</strong></p>
+<ol type="1">
+<li><p>How many individuals are in each population and sex group? Output the table into a .csv. HINT: write_csv(object, “FileName.csv”)</p></li>
+<li><p>Create a table that includes population, sex, the mean of GOL, the sd of GOL, and the sample size.</p></li>
+</ol>
+</section>
+<section id="section-9" class="slide level2">
+<h2></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href></a>samplesize <span class="ot">&lt;-</span> howells <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Population, Sex) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>())</span>
+<span id="cb84-2"><a href></a></span>
+<span id="cb84-3"><a href></a><span class="fu">head</span>(samplesize)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+# Groups:   Population [4]
+  Population Sex    count
+  &lt;chr&gt;      &lt;fct&gt;  &lt;int&gt;
+1 AINU       Male      48
+2 AINU       Female    38
+3 ANDAMAN    Male      35
+4 ANDAMAN    Female    35
+5 ANYANG     Male      42
+6 ARIKARA    Male      42</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href></a><span class="fu">write_csv</span>(samplesize, <span class="st">&quot;howells_sampSize.csv&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="section-10" class="slide level2">
+<h2></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href></a>howSumStats <span class="ot">&lt;-</span> howells <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Population, Sex) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">mean</span>(GOL), <span class="fu">sd</span>(GOL), <span class="st">`</span><span class="at">Sample Size</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">n</span>())</span>
+<span id="cb87-2"><a href></a></span>
+<span id="cb87-3"><a href></a><span class="fu">head</span>(howSumStats)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+# Groups:   Population [4]
+  Population Sex    `mean(GOL)` `sd(GOL)` `Sample Size`
+  &lt;chr&gt;      &lt;fct&gt;        &lt;dbl&gt;     &lt;dbl&gt;         &lt;int&gt;
+1 AINU       Male          190.      5.03            48
+2 AINU       Female        179.      5.35            38
+3 ANDAMAN    Male          169.      5.39            35
+4 ANDAMAN    Female        160.      4.79            35
+5 ANYANG     Male          181       4.27            42
+6 ARIKARA    Male          179.      5.82            42</code></pre>
+</div>
+</div>
 
 </section></section>
     </div>

@@ -712,3 +712,88 @@ na_if(howells$GOL, 999)  # modifies a vector
 
 ```
 
+## dplyr::recode()
+
+* Modifies levels of a factor 
+
+```{r}
+#| echo: true
+#| eval: true
+
+
+howells$Sex <- dplyr::recode_factor(howells$Sex, 'M' = 'Male', 'F' = 'Female')
+
+head(howells$Sex)
+```
+
+* Syntax: `old_name = new_name`
+
+## Upcase / Downcase Column Names
+
+* Downcase
+
+```{r}
+#| echo: true
+#| eval: false
+
+names(howells) <- tolower(names(howells))
+```
+
+* Upcase
+
+```{r}
+#| echo: true
+#| eval: false
+
+names(howells) %<>% toupper(names(howells))
+```
+
+* Columns
+
+**PSA: Will change back to a STRING - AKA may need to change back to a factor**
+
+```{r}
+#| echo: true
+#| eval: false
+
+howells$Population %<>% tolower() %>% factor()
+```
+
+## Practice
+
+**Using `summarize()` and group_by()`**
+
+1.  How many individuals are in each population and sex group? Output the table into a .csv. HINT: write_csv(object, “FileName.csv”)
+
+2.  Create a table that includes population, sex, the mean of GOL, the sd of GOL, and the sample size. 
+
+
+##
+
+```{r}
+#| echo: true
+#| eval: true
+
+samplesize <- howells %>% group_by(Population, Sex) %>% summarize(count = n())
+
+head(samplesize)
+```
+
+```{r}
+#| echo: true
+#| eval: false
+
+write_csv(samplesize, "howells_sampSize.csv")
+```
+
+##
+
+```{r}
+#| echo: true
+#| eval: true
+
+howSumStats <- howells %>% group_by(Population, Sex) %>% summarize(mean(GOL), sd(GOL), `Sample Size` = n())
+
+head(howSumStats)
+```
+
