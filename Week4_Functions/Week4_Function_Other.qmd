@@ -1,0 +1,191 @@
+---
+title: "Simulation, Functions, and Loops"
+author: ""
+format: 
+  revealjs:
+    theme: night
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Check In
+
+# Data Simulation
+
+## Step 1: Set Seed
+
+
+***Whenever one uses a random process, one must set the seed.***
+
+
+```{r}
+#| echo: true
+
+set.seed(1991)
+```
+
+
+## Make Some Data
+
+* **Probability Distributions** 
+  *   `rnorm()`, `rpois()`, `rbinom()`, `rexp()`, ...
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+set.seed(1000478)
+
+number_of_observations <- 5
+simulated_data <-
+  data.frame(
+    person = c(1:number_of_observations),
+    std_normal_observations = rnorm(
+      n = number_of_observations,
+      mean = 0,
+      sd = 1
+    )
+  )
+
+simulated_data
+```
+
+## Output
+
+```{r}
+#| echo: false
+
+set.seed(1000478)
+
+number_of_observations <- 5
+simulated_data <-
+  data.frame(
+    person = c(1:number_of_observations),
+    std_normal_observations = rnorm(
+      n = number_of_observations,
+      mean = 0,
+      sd = 1
+    )
+  )
+
+simulated_data
+```
+
+:::
+
+## More Data!
+
+::: {.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+simulated_data <-
+  simulated_data |>
+  cbind() |>
+  data.frame(
+    uniform_observations =
+      runif(n = number_of_observations, min = 0, max = 10),
+    poisson_observations =
+      rpois(n = number_of_observations, lambda = 100),
+    binomial_observations =
+      rbinom(n = number_of_observations, size = 2, prob = 0.5)
+  )
+
+simulated_data
+```
+
+## Output
+
+```{r}
+#| echo: false
+#| eval: true
+
+simulated_data <-
+  simulated_data |>
+  cbind() |>
+  data.frame(
+    uniform_observations =
+      runif(n = number_of_observations, min = 0, max = 10),
+    poisson_observations =
+      rpois(n = number_of_observations, lambda = 100),
+    binomial_observations =
+      rbinom(n = number_of_observations, size = 2, prob = 0.5)
+  )
+
+simulated_data
+```
+
+:::
+
+## What if I want to draw names out of a hat?
+
+```{r}
+#| echo: true
+
+atlantis <- c("kida", "milo", "helga", "audrey", "gaetan")
+atlantis
+```
+
+```{r}
+#| echo: true
+
+sample(x = atlantis, size = 3, replace = T)
+```
+
+## Putting It all Together
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+simulated_data <-
+  data.frame(
+    favorite_color = sample(
+      x = c("blue", "white"),
+      size = number_of_observations,
+      replace = TRUE
+    )
+  ) |>
+  cbind(simulated_data)
+
+simulated_data
+```
+
+## Output
+
+```{r}
+#| echo: false
+#| eval: true
+
+simulated_data <-
+  data.frame(
+    favorite_color = sample(
+      x = c("blue", "white"),
+      size = number_of_observations,
+      replace = TRUE
+    )
+  ) |>
+  cbind(simulated_data)
+
+simulated_data
+```
+
+:::
+
+##
