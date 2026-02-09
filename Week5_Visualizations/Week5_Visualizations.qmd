@@ -1,0 +1,333 @@
+---
+title: "Visualizing Data"
+format: 
+  revealjs:
+    theme: blood
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Visualizing Data
+
+::::{.columns}
+
+:::{.column width="35%"}
+
+**The presentation of data in a pictorial or graphical format.**
+
+\
+
+**The most important but [dangerous]{.underline} element of data analytics.**
+
+:::
+
+:::{.column width="65%"}
+
+![](slide1.png)
+
+:::
+
+::::
+
+## Data Visualization Tips
+
+**There are a few basic concepts that can help you generate the best visuals for displaying your data:**
+
+* Understand your data.
+
+* Determine what you want to communicate.
+
+* Know your audience. 
+
+## ggplot2
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+```{r}
+#| echo: true
+
+library(ggplot2)
+
+# library(tidyverse)
+```
+
+* Most robust and versatile
+* Based on the "Grammar of Graphics"
+  * Plots are built up in layers
+
+:::
+
+:::{.column width = "50%"}
+
+![](ggplot.png)
+
+:::
+
+::::
+
+## Plot Ingredients
+
+* **Data**
+* **Mapping:** maps variables to plot elements
+* **Geometrics:** points, lines, boxes, histograms, bars, etc.
+* **Scales:** controls the mapping of the values in *data space* to values in *aesthetic space*
+* **Guides:** controls how visual properties are mapped back to the *data space*
+  * **Labels:** axis, legend, titles
+* **Themes:** visual themes for the plot.
+
+## The Big 3
+
+**Only 3 ingredients are [required]{.underline} to make a plot.**
+
+1.  Data
+2.  Mapping / Aesthetics
+3.  A "geom"
+
+```{r}
+#| echo: true
+#| eval: false
+
+?ggplot()
+ggplot(data = NULL, mapping = aes(), ..., environment = parent.frame())
+```
+
+## 1. Data
+
+**Always begin with the main function in ggplot2: `ggplot`**
+
+**Data are specified via the "data" argument:
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(data = mydata)
+```
+
+**This argument supplies a coordinate system to add layers to.**
+
+## 2. Aesthetics
+
+**`aes()` maps variables from a data set to various elements of a plot**
+
+* **Discrete values** (groups / categories) can have **color**, **shape**, **linetype**, or **fill** mappings.
+    
+* **Points** can have an additional **x** and **y** position mappings. 
+    
+**Mappings go into the `aes()` function as the 2nd argument in `ggplot()`.**
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(data=df, aes(x=V1, y=V2, color=V3))
+```
+
+**Any part of the plot related to the data goes in aes()**
+
+## 3. Geoms
+
+**-geoms** are the type of geometrics in your plot.
+
+**Common geoms include:**
+
+* `geom_boxplot()`
+* `geom_histogram()`
+* `geom_line()`
+* `geom_density()`
+* `geom_bar()`
+* `geom_point()`
+* ETC
+
+## IMPORTANT {.center}
+
+**`ggplot()` is built in layers**
+
+Use the `+` operator to add layers to the exisiting `ggplot()` object.
+
+In this way, your code is explicit about which layers are added and [*in what order.*]{.underline}
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(data=mydata, aes(x=V1, y=V2, color=V3)) + geom_point()
+```
+
+## Have Data? {.center}
+
+![](geoms.png)
+
+## Variation in Design
+
+**To build your plots layer by layer, you use a continuous combination of geoms:**
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(mydata, aes(x, y)) + geom_point() + geom_line()
+
+```
+
+PSA:
+
+```{r}
+#| echo: true
+#| eval: false
+
+mydata %>% ggplot(aes(x, y)) + geom_point() + geom_line()
+
+```
+
+Adding layer by layer:
+
+```{r}
+#| echo: true
+#| eval: false
+
+my_plot <- ggplot(df, aes(x, y))
+my_plot <- my_plot + geom_point()
+my_plot <- my_plot + geom_line()
+
+```
+
+## Printing Plots
+
+**You do not need to create an object for the plot:**
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(data=df, aes(x=V1, y=V2, color=V3)) + geom_point()
+```
+
+**BUT you can assign your plot to a variable...**
+
+```{r}
+#| echo: true
+#| eval: false
+
+my_plot <- ggplot(df, aes(x, y)) + 	geom_point()
+```
+
+**...and then print / view your plot**
+
+```{r}
+#| echo: true
+#| eval: false
+
+my_plot
+```
+
+# Building Common Visualizations
+
+## Boxplots
+
+Visualize the distribution of continuous variables by plotting its five-number summary: 
+
+* Minimum
+* 25th percentile
+* Median (50th percentile)
+* 75th percentile
+* Maximum
+
+##
+
+![](boxplot1.png)
+
+## Boxplots
+
+**One continuous variable and one discrete variable**
+
+```{r}
+#| echo: false
+
+howells <- read.csv("/Users/christopherwolfe/Library/CloudStorage/OneDrive-EastCarolinaUniversity/Documents/ECU_Courses/Fall2025/Stats_Paradise/assignments/howells.csv")
+```
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+gol <- howells[howells$Population == 'ARIKARA' | howells$Population =='HAINAN' | howells$Population == 'NORSE', ]
+
+ggplot(gol, aes(x=Population, y=GOL)) + geom_boxplot()
+
+```
+
+## Results
+```{r}
+#| echo: false
+#| eval: true
+
+gol <- howells[howells$Population == 'ARIKARA' | howells$Population =='HAINAN' | howells$Population == 'NORSE', ]
+
+ggplot(gol, aes(x=Population, y=GOL)) + geom_boxplot()
+
+```
+
+:::
+
+## Boxplots: Discrete Colors {.smaller}
+
+**Discrete variables can also be used to differentiate plot elements by including in the aes() function**
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(gol, aes(x=Population, y=GOL, color=Sex)) + geom_boxplot()
+```
+
+## Results
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(gol, aes(x=Population, y=GOL, color=Sex)) + geom_boxplot()
+```
+
+:::
+
+## Boxplots: Discrete Colors {.smaller}
+
+**Discrete variables can also be used to differentiate plot elements by including in the aes() function**
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(gol, aes(x=Population, y=GOL, fill=Sex)) + geom_boxplot()
+```
+
+## Results
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(gol, aes(x=Population, y=GOL, fill=Sex)) + geom_boxplot()
+```
+
+:::
+
+## Histograms, Density Plots, and Bar Plots
