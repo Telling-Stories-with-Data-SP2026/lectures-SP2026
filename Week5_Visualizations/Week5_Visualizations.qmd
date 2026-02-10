@@ -2,7 +2,7 @@
 title: "Visualizing Data"
 format: 
   revealjs:
-    theme: blood
+    theme: league
     slide-number: true
     show-slide-number: all
     chalkboard: false # Great for drawing during stats lectures
@@ -13,6 +13,17 @@ editor_options:
 ---
 
 ## Visualizing Data
+
+```{r}
+#| echo: false
+#| message: false
+
+library(tidyverse)
+
+mytheme <-  theme_bw() + theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),                               legend.background=element_blank(), legend.box.background=element_rect(color='black'), legend.key=element_blank(), legend.title=element_text(face='plain',size=14), legend.text=element_text(size=12), axis.title=element_text(size=15, lineheight=.9, vjust=.3), axis.text=element_text(size=12), axis.title.x=element_text(vjust=.2), axis.title.y=element_text(vjust=.3), plot.title=element_text(size=18), strip.text=element_text(size=12))
+
+```
+
 
 ::::{.columns}
 
@@ -331,3 +342,692 @@ ggplot(gol, aes(x=Population, y=GOL, fill=Sex)) + geom_boxplot()
 :::
 
 ## Histograms, Density Plots, and Bar Plots
+
+**One vector / column of you data**
+
+![](hist.png)
+
+## Histograms
+
+::::{.columns}
+
+:::{.column width = "40%"}
+
+* Divides the range of scores into a specified number of “bins” on the x-axis and displays the count on the y-axis
+  * **Continuous data only**
+
+:::
+
+:::{.column width = "60%"}
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(faithful, aes(x=waiting)) + 	geom_histogram()
+```
+
+
+## Results
+
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(faithful, aes(x=waiting)) + 	geom_histogram()
+```
+
+:::
+
+:::
+
+::::
+
+## Histograms: binwidth, fill, and color
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+:::{.panel-tabset}
+
+## Default
+
+```{r}
+#| echo: false
+
+ggplot(faithful, aes(x=waiting)) + 	geom_histogram(fill="white", color="black")
+```
+
+
+## Binwidth 1
+
+```{r}
+#| echo: false
+
+ggplot(faithful, aes(x=waiting)) + 	geom_histogram(binwidth = 1,fill="white", color="black")
+```
+
+## Binwidth 10
+
+```{r}
+#| echo: false
+
+ggplot(faithful, aes(x=waiting)) + 	geom_histogram(binwidth = 10,fill="white", color="black")
+```
+
+:::
+
+:::
+
+:::{.column width = "50%"}
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(faithful, aes(x=waiting)) + 	geom_histogram(binwidth=5, 	fill="white", color="black")
+```
+
+
+## Results
+
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(faithful, aes(x=waiting)) + 	geom_histogram(binwidth=5, 	fill="white", color="black")
+```
+
+:::
+
+:::
+
+::::
+
+## Histograms: Faceting
+
+`facet_grid()` separates ("facets") the plots by rows, columns, or both.
+
+\
+
+General format: ROWS ~ COLUMNS
+
+\
+
+**Note:** [ . ] means "not the dimension."
+
+##
+
+```{r}
+#| echo: true
+
+library(MASS) 
+data(birthwt)
+
+
+ggplot(birthwt, aes(x=bwt)) + 	geom_histogram(fill="white", color="black") + 	facet_grid(smoke~.) + mytheme
+```
+
+## Density Plots
+
+::::{.columns}
+
+:::{.column width = "40%"}
+
+“Nonparametric method for estimating the probability density function of a random variable”
+\
+AKA it gives you the proportion instead of the count
+\
+Results in a smoothed line
+
+:::
+
+:::{.column width = "60%"}
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(faithful, aes(x=waiting)) + 	geom_density()
+```
+
+
+## Results
+
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(faithful, aes(x=waiting)) + 	geom_density()
+```
+
+:::
+
+:::
+
+::::
+
+## Density Plots: Sensitivity
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+:::{.panel-tabset}
+
+## adjust = 0.1
+
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(faithful, aes(x=waiting)) + 	geom_density(adjust=0.1)
+```
+
+## adjust = 2.5
+
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(faithful, aes(x=waiting)) + 	geom_density(adjust=2.5)
+```
+
+## default
+
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(faithful, aes(x=waiting)) + 	geom_density()
+```
+
+:::
+
+:::
+
+:::{.column width = "50%"}
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(faithful, aes(x=waiting)) + 	geom_density(adjust=0.25)
+```
+
+
+## Results
+
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(faithful, aes(x=waiting)) + 	geom_density(adjust=0.25)
+```
+
+:::
+
+:::
+
+::::
+
+## Density Plots: Fills
+
+::::{.columns}
+
+:::{.column width = "40%"}
+
+`geom_density()` can be filled with a color. 
+
+\
+
+NOTE: alpha is used to indicate transparency
+
+\
+
+0 == transparent. 
+
+\
+
+1 == opaque
+
+
+
+:::
+
+:::{.column width = "60%"}
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+ggplot(faithful, aes(x=waiting)) + 	geom_density(fill="blue", alpha=0.5)
+```
+
+
+## Results
+
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(faithful, aes(x=waiting)) + 	geom_density(fill="blue", alpha=0.5)
+```
+
+:::
+
+:::
+
+::::
+
+## Density Plots: Factors 
+
+::::{.columns}
+
+:::{.column width = "40%"}
+
+Just like other plots we have seen, a discrete variable (factor) can be used to separate groups
+
+
+:::
+
+:::{.column width = "60%"}
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| eval: false
+#| echo: true
+
+ggplot(birthwt, aes(x=bwt, 	fill=factor(smoke))) + 	geom_density(color=NA, 			alpha=0.5)
+```
+
+
+## Results
+
+```{r}
+#| eval: true
+#| echo: false
+
+ggplot(birthwt, aes(x=bwt, 	fill=factor(smoke))) + 	geom_density(color=NA, 			alpha=0.5)
+```
+
+:::
+
+:::
+
+::::
+
+## Adding Layers
+
+```{r}
+#| echo: true
+
+# Note the use of after_stat() this scales the histogram with the density. Remember, histograms are counts. 
+
+ggplot(faithful, aes(x=waiting, y=after_stat(density))) +
+	geom_histogram( fill="white", color="black") + 	geom_density(fill="steelblue", alpha=0.4)
+
+```
+
+## Bar Plots
+
+**Displays the counts of [discrete/ordinal]{.underline} variables.**
+
+```{r}
+#| echo: true
+
+ggplot(diamonds, aes(x=cut)) + geom_bar()
+```
+
+## Bar Plots: Bar Width
+
+:::{.panel-tabset}
+
+## Default
+
+```{r}
+#| echo: true
+
+ggplot(diamonds, aes(x=cut)) + geom_bar()
+```
+
+## Width = 0.1
+
+```{r}
+#| echo: true
+
+ggplot(diamonds, aes(x=cut)) + geom_bar(width = 0.1)
+```
+
+## Width = 1
+
+```{r}
+#| echo: true
+
+ggplot(diamonds, aes(x=cut)) + geom_bar(width = 1)
+```
+
+:::
+
+## Bar Plots: Factors
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+```{r}
+#| echo: true
+
+ggplot(diamonds, aes(x=cut, fill=color)) + 	geom_bar()
+```
+
+
+:::
+
+:::{.column width = "50%"}
+
+```{r}
+#| echo: true
+
+ggplot(diamonds, aes(x=cut, fill=color))+ geom_bar(position="dodge")
+
+```
+
+:::
+
+::::
+
+## Line Plots
+
+Visualizes how one variable on the y-axis changes in relation to changes in the x-axis
+
+\
+
+Can represent discrete(categorical) or continuous(numeric) variables on the x-axis
+
+
+## geom_line example
+
+:::{.panel-tabset}
+
+## geom_col
+
+```{r}
+#| echo: true
+
+ggplot(BOD, aes(x=Time, y=demand)) + geom_col()
+```
+
+## geom_line
+
+```{r}
+#| echo: true
+
+ggplot(BOD, aes(x=Time, y=demand)) + geom_line()
+```
+
+:::
+
+##
+
+```{r}
+#| echo: true
+
+ggplot(BOD, aes(x=Time, y=demand)) + geom_line() + geom_point()
+```
+
+##
+
+![](linetypes.png)
+
+## Change Point Characters
+
+* The `pch` command changes the point type.
+
+```{r}
+#| echo: true
+
+ggplot(BOD, aes(x=Time, y=demand)) + geom_line(lty=2) + geom_point(pch=7)
+
+```
+
+## Group by Linetype
+
+```{r}
+#| echo: true
+
+ggplot(ToothGrowth, aes(x=dose, y=len, lty=supp)) + geom_line()
+
+```
+
+## Size
+
+Use `size` to adjust the size of the elements. 
+
+```{r}
+#| echo: true
+
+tg <- ToothGrowth %>% group_by(dose, supp) %>% summarize(len = mean(len))
+
+
+ggplot(tg, aes(x=dose, y=len, shape=supp, lty=supp)) + geom_line(lwd=2) + geom_point(size=6)
+
+```
+
+##
+
+![](points.png)
+
+## Scatterplots
+
+**Scatterplots**
+\
+* Bi-variate scatter plots help you visualize relationships between two quantitative / continuous variables
+  * When there are additional variables being explored you can use a scatterplot matrix
+\
+* Helps identify outliers
+* Helps identify multicollinearity
+* Includes stat_functions (linear and loess lines)
+* Can also incorporate boxplots / histograms / rug plots
+
+##
+
+```{r}
+#| echo: true
+library(MASS)
+bw <- birthwt %>% dplyr::select(age, lwt, smoke, bwt)
+
+# create labelled factors
+unique(bw$smoke)
+
+bw$smoke <- factor(bw$smoke, levels=c(0,1), labels=c("No", "Yes"))
+
+
+# plot
+ggplot(bw, aes(x=lwt, y=bwt)) + geom_point()
+
+```
+
+## Scatterplots: Discrete Color
+
+```{r}
+#| echo: true
+
+ggplot(bw, aes(x=lwt, y=bwt, color=smoke)) + geom_point()
+```
+
+## Scatterplots: Discrete Shapes
+
+```{r}
+#| echo: true
+
+ggplot(bw, aes(x=lwt, y=bwt, shape=smoke)) + geom_point(size=4)
+```
+
+## Scatterplots: Specifying Shape
+
+**`scale_shape_manual()` is used to specify the values of the pch**
+
+```{r}
+#| echo: true
+
+ggplot(bw, aes(x=lwt, y=bwt, shape=smoke)) + geom_point(size=4) + 	scale_shape_manual(values=c(1,16))
+```
+
+## Scatterplots: Adding a Stat Line
+
+`stat_smooth()` is used to add a line which represents the statistical procedure specified by the “method” argument
+
+```{r}
+#| echo: true
+
+ggplot(bw, aes(x=lwt, y=bwt)) + geom_point(size=4) + 
+	stat_smooth(aes(color=smoke), method=lm, lwd=4)
+```
+
+##
+
+```{r}
+#| echo: true
+
+ggplot(bw, aes(x=lwt, y=bwt)) + geom_point(size=4) + stat_smooth(aes(lty=smoke), method=lm, lwd=4, color="red")
+
+```
+
+## geom_smooth()
+
+`geom_smooth()` adds a loess smoothing line to our plot
+
+\
+
+Loess = Locally Estimated Scatterplot Smoothing
+
+```{r}
+#| echo: true
+
+ggplot(bw, aes(x=lwt, y=bwt)) +	geom_point(size=4) + 
+	geom_smooth(se=FALSE, lwd=2, color="red")
+
+```
+
+## Labels + Titles
+
+```{r}
+#| echo: true
+
+pc <- read.csv('/Users/christopherwolfe/Library/CloudStorage/GoogleDrive-chriswolfe93091@gmail.com/My Drive/ECU_Courses/Spring2025/ANTH_Stat/data/goldman_pc.csv')
+
+library(magrittr)
+
+pc %<>% filter(Inst %in% c("DC", "KSU", "NM", "WOAC"))
+
+example_plot <- ggplot(pc, aes(x=RRML, y=lhml, color=Inst)) + geom_point(size=3) + scale_color_manual(values=c("red","green","goldenrod","purple"))
+
+example_plot <- example_plot + labs(x="Radius max. length", y="Humerus max. length", title="Scattered", color="Institution")
+
+example_plot
+
+```
+
+## Axes
+
+```{r}
+#| echo: true
+
+example_plot + xlim(200, 300) + ylim(250, 350)
+```
+
+## Themes
+
+* Themes are used to adjust the visual appearance of elements in your plot.
+
+
+* `element_blank()`
+* `element_line()`
+* `element_rect()`
+* `element_text()`
+
+* `element_blank()` is used to remove a specified element from the plot
+* `element_text()` is the most used
+
+##
+
+```{r}
+#| echo: true
+#| eval: false
+
+plot + theme_bw() + theme(axis.title.x = element_text(colour="red", size=12))
+```
+
+![](theme.png)
+
+## element_text()
+
+* `element_text()` is used to change fonts, sizes, justification, angles, and more
+
+* `help(element_text())` for more options
+    * TIP: Load `ggplot2` and type `help(theme)` for all theme elements
+
+```{r}
+#| echo: true
+#| eval: false
+
+theme(title=element_text(size=16)
+theme(plot.title=element_text(size=22)
+theme(axis.title=element_text(size=16)
+theme(axis.text=element_text(size=12)
+theme(legend.text=element_text(size=12)
+
+```
+
+## Pre-Made Themes
+
+* `library(ggplot2)` comes with several premade themes and `library(ggthemes)` includes many more… go explore!
+
+* Premade themes are functions and are called by the code: `my_plot + theme_bw()`
+
+\
+These themes are often good starting points for creating a custom theme
+
+## Premade Themes
+
+> Find your style!
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-overflow: wrap
+#| code-fold: show
+
+mytheme <-  theme_bw() + theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),                               legend.background=element_blank(), legend.box.background=element_rect(color='black'), legend.key=element_blank(), legend.title=element_text(face='plain',size=14), legend.text=element_text(size=12), axis.title=element_text(size=15, lineheight=.9, vjust=.3), axis.text=element_text(size=12), axis.title.x=element_text(vjust=.2), axis.title.y=element_text(vjust=.3), plot.title=element_text(size=18), strip.text=element_text(size=12))
+
+```
+
+##
+
+![](ggplot_cheatsheet.png)
+
