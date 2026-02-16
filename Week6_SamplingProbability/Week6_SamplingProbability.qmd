@@ -1,0 +1,475 @@
+---
+title: "Sampling & Probability"
+format: 
+  revealjs:
+    theme: simple
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Sampling
+
+## Research Question
+
+Every research project aims to answer a research question (or multiple questions).
+
+> Do ECU students who exercise regularly have a higher GPA?
+
+## Population
+
+Each research question aims to examine a **population**.
+
+> Population for this research question is ECU students.
+
+##  Survey Questions
+
+  * Do you exercise at least once a week?
+  * What is your GPA?
+  
+##
+
+![](PopSample.png)
+
+## Sampling
+
+* It is ***impossible*** to study the whole population related to a research question.
+
+* A sample $n$ is a subset of the population $N$.
+
+* The Goal: Select a ***representative*** sample to generalize to the broader population.
+
+> What is representative?
+
+##
+
+![](PopSample2.png)
+
+## Convenience Sampling
+
+* Sample is [easy to access]{.underline}. 
+
+\
+
+* **Example:**
+    * Stand in front of Joyner Library.
+    * Give the survey to 100 ECU students. 
+
+\
+    
+* **Issue:**
+    * Will introduce **sampling bias**
+    
+## PSA x2
+
+> ***Data quality*** matters more than ***data quantity***
+
+\
+
+> Many anthropological studies (or similar) are convenience based.
+
+## Simple Random Sample
+
+Every member of a population has an equal chance of being selected.
+
+* Examples:
+    * Reach out to the registrar for student emails
+    * Randomly select 100 students
+    * Email students the survey
+    
+## Simple Random Sampling in R
+
+```{r}
+#| echo: true
+
+sample(1:100, 3, replace = FALSE)
+```
+
+**To Generalize:**
+
+```{r}
+#| echo: true
+#| eval: false
+
+sample(x = 1:N, size = n, replace = FALSE)
+```
+
+## Systematic Sampling {.smaller}
+
+Similar to a *simple random sample* **BUT** intervals are chosen at regular intervals. 
+
+```{r}
+#| echo: true
+#| eval: true
+
+# 1. Create a population (e.g., a vector of 1 to 1000)
+population <- 1:1000
+
+# 2. Define the desired sample size
+sample_size <- 100
+
+# 3. Calculate the sampling interval (k)
+N <- length(population) # Population size
+k <- N / sample_size
+# If k is not an integer, you might use ceiling(N/n) and adjust the logic
+
+# 4. Choose a random starting point (r) between 1 and k
+set.seed(123) # Optional: for reproducible results
+start_point <- sample(1:k, 1)
+
+# 5. Select every k-th element starting from the random start point
+systematic_sample_indices <- seq(from = start_point, to = N, by = k)
+systematic_sample <- population[systematic_sample_indices]
+
+# 6. View the first few elements and the dimension of the sample
+head(systematic_sample)
+length(systematic_sample) # Should be the desired sample size (100)
+
+```
+
+## Subgroups
+
+![](subgroup.jpg)
+
+## Stratified Random Sampling in R
+
+```{r}
+#| echo: true
+#| eval: true
+
+library(dplyr)
+
+# Sample data
+set.seed(123) # For reproducibility
+data <- data.frame(
+  ID = 1:100,
+  Gender = sample(c("Male", "Female"), 100, replace = TRUE),
+  Income = rnorm(100, mean = 50000, sd = 10000)
+)
+```
+
+```{r}
+#| echo: true
+#| eval: true
+
+# Stratified sampling with sample_n()
+sampled_data_n <- data %>%
+  group_by(Gender) %>%
+  sample_n(10)
+
+# View the sampled data
+# sampled_data_n %>% count(Gender)
+```
+
+## Single Stage Cluster Sampling in R
+
+```{r}
+#| echo: true
+
+set.seed(123)
+
+population <- data.frame(
+  Supermarket = paste("Supermarket", 1:1000, sep = "_"),
+  CustomerSatisfaction = rnorm(1000, mean = 75, sd = 10)
+)
+
+selected_supermarkets <- sample(population$Supermarket, size = 10, replace = FALSE)
+
+sampled_data <- population[population$Supermarket %in% selected_supermarkets, ]
+
+head(sampled_data)
+```
+
+## 2-Stage Cluster Sampling {.smaller}
+
+```{r}
+#| echo: true
+
+set.seed(123)
+
+region <- data.frame(
+  Neighborhood = paste("Neighborhood", 1:500, sep = "_"),
+  AverageIncome = rnorm(500, mean = 50000, sd = 10000)
+)
+
+households <- data.frame(
+  Neighborhood = rep(sample(region$Neighborhood, size = 500, replace = TRUE), each = 20),
+  HouseholdID = rep(1:20, times = 500),
+  EmploymentStatus = sample(c("Employed", "Unemployed"), size = 10000, replace = TRUE)
+)
+
+selected_neighborhoods <- sample(region$Neighborhood, size = 5, replace = FALSE)
+
+sampled_households <- households[households$Neighborhood %in% selected_neighborhoods, ]
+
+head(sampled_households)
+```
+
+## Multi-Stage Cluster Sampling
+
+```{r}
+#| echo: true
+
+set.seed(123)
+states <- data.frame(
+  State = paste("State", 1:50, sep = "_"),
+  Population = sample(1000000:5000000, 50, replace = TRUE)
+)
+counties <- data.frame(
+  State = rep(sample(states$State, size = 50, replace = TRUE), each = 20),
+  County = rep(paste("County", 1:20, sep = "_"), times = 50),
+  VaccinationRate = rnorm(1000, mean = 70, sd = 5)
+)
+selected_states <- sample(states$State, size = 3, replace = FALSE)
+selected_counties <- sample(counties$County[counties$State %in% selected_states], size = 5, replace = FALSE)
+sampled_vaccination_centers <- counties[counties$County %in% selected_counties, ]
+head(sampled_vaccination_centers)
+```
+
+##
+
+![](bias.png)
+
+##
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+
+# 1. Define Population Distribution (e.g., skewed population)
+set.seed(123)
+population <- rgamma(100000, shape = 2, scale = 2)
+
+# 2. Take a Sample Distribution (e.g., 100 individuals)
+sample_data <- sample(population, 100)
+
+```
+
+## Plots
+
+```{r}
+#| echo: false
+
+# 3. Compare Distributions (Plotting)
+par(mfrow=c(1,2)) # Set up 1x2 plot area
+hist(population, breaks=50, main="Population (N=100,000)", col="blue")
+hist(sample_data, breaks=20, main="Sample (n=100)", col="red")
+
+```
+
+:::
+
+# From Sampling to Probability
+
+> How do we [infer]{.underline} future events or population characteristics?
+
+## Random Process
+
+In a ***random process*** there is more than one possible outcome. 
+
+* The [deterministic]{.underline} prediction of the outcome is difficult to impossible.
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+```{r}
+#| echo: true
+
+sample(x = c("H", "T"), size = 10, replace = T)
+```
+
+
+:::
+
+:::{.column width = "50%"}
+
+```{r}
+#| echo: true
+
+sample(x = c(1:6), size = 10, replace = T)
+```
+
+:::
+
+::::
+
+## Random vs. Deterministic Processes {.center}
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+![](process1.png)
+
+:::
+
+:::{.column width = "50%"}
+
+![](process2.png)
+
+:::
+
+::::
+
+##
+
+![](process3.png)
+
+## Sample Space
+
+The [set]{.underline} of all possible outcomes of a random process.
+
+![](space.png)
+
+## Event {.smaller}
+
+An **event** is a subset of the sample space.
+
+* Examples with a 6-sided die:
+
+  * Let `A` represent the event that a single roll die results in an **even** number.
+    * `A = {2, 4, 6}`
+    
+  * Let `B` represent the event that a single roll die results in an **odd** number.
+    * `B = {1, 3, 5}`
+    
+  * Let `C` represent the event that a single roll die results in a **prime** number.
+    * `C = {2, 3, 5}`
+    
+##
+
+![](venn1.jpg)
+
+## Complement of an Event
+
+The set of all outcomes in the sample space that **are not** in the event itself.
+
+* Example: 
+
+  * Let `C` represent the event that a single roll die results in a **prime** number.
+    * `C = {2, 3, 5}`
+    
+  * Notation: $C^C$
+    * *C complement*
+    
+  * $C^C$ `= {1, 4, 6}`
+  
+## 
+
+![](complement.png)
+
+## Mutually Exclusive or Disjoint Events {.smaller}
+
+* 
+
+  * Let `A` represent the event that a single roll die results in an **even** number.
+    * `A = {2, 4, 6}`
+    
+  * Let `B` represent the event that a single roll die results in an **odd** number.
+    * `B = {1, 3, 5}`
+    
+  * Let `C` represent the event that a single roll die results in a **prime** number.
+    * `C = {2, 3, 5}`
+    
+Events $A$ and $B$ are ***mutually exclusive*** because an outcome cannot be both even + odd.
+
+Events $A$ and $C$ are ***not mutually exclusive*** because the outcome `2` is both even + prime. 
+
+##
+
+![](mut.png)
+
+## Events & Set Notation
+
+<br>
+<br>
+<div align ="center">
+
+```{r echo = FALSE}
+
+set_table <- data.frame(Description = c("Union", "Intersection"),
+                        Notation = c("\\(A \\cup C\\)", 
+                                   "\\(A \\cap C\\)"),
+                        Reading = c("A or C", "A and C"),
+                        Elements = c("{2, 3, 4, 5, 6}",
+                        "{2}"))
+
+
+
+kableExtra::kable(set_table, "html", escape = FALSE)
+
+``` 
+
+</div>
+
+##
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+set.seed(1)
+OBV <- 1:10
+Dist1 <- NULL
+Dist9 <- NULL
+Dist16 <- NULL
+Dist25 <- NULL
+Dist36 <- NULL
+count = 100
+while(count > 0){Dist1 <- c(Dist1,sample(OBV, 1, replace = TRUE)); count <- count - 1}
+count = 100
+while(count > 0){Dist9 <- c(Dist9,mean(sample(OBV, 9,replace = TRUE) ) ); count <- count - 1}
+count = 100
+while(count > 0){Dist16 <- c(Dist16,mean(sample(OBV, 16,replace = TRUE) ) ); count <- count - 1}
+count = 100
+while(count > 0){Dist25 <- c(Dist25,mean(sample(OBV, 25,replace = TRUE) ) ); count <- count - 1}
+count = 100
+while(count > 0){Dist36 <- c(Dist36,mean(sample(OBV, 36,replace = TRUE) ) ); count <- count - 1}
+Dist.df <- data.frame(Size = factor(rep(c(1,9,16,25,36), each=100)), Sample_Means = c(Dist1, Dist9, Dist16, Dist25, Dist36) )
+ggplot(Dist.df, aes(Sample_Means, fill = Size)) + geom_histogram() + facet_grid(. ~ Size)
+```
+
+## Plot
+
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+
+set.seed(1)
+OBV <- 1:10
+Dist1 <- NULL
+Dist9 <- NULL
+Dist16 <- NULL
+Dist25 <- NULL
+Dist36 <- NULL
+count = 100
+while(count > 0){Dist1 <- c(Dist1,sample(OBV, 1, replace = TRUE)); count <- count - 1}
+count = 100
+while(count > 0){Dist9 <- c(Dist9,mean(sample(OBV, 9,replace = TRUE) ) ); count <- count - 1}
+count = 100
+while(count > 0){Dist16 <- c(Dist16,mean(sample(OBV, 16,replace = TRUE) ) ); count <- count - 1}
+count = 100
+while(count > 0){Dist25 <- c(Dist25,mean(sample(OBV, 25,replace = TRUE) ) ); count <- count - 1}
+count = 100
+while(count > 0){Dist36 <- c(Dist36,mean(sample(OBV, 36,replace = TRUE) ) ); count <- count - 1}
+Dist.df <- data.frame(Size = factor(rep(c(1,9,16,25,36), each=100)), Sample_Means = c(Dist1, Dist9, Dist16, Dist25, Dist36) )
+ggplot(Dist.df, aes(Sample_Means, fill = Size)) + geom_histogram() + facet_grid(. ~ Size)
+```
+
+:::
+
+##
