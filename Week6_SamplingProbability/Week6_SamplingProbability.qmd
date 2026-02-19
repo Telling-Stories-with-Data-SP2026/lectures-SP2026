@@ -890,4 +890,638 @@ The probability of the [observed]{.underline} data, ***given*** the hypothesis /
 
 * Option B: $P(\mathbf{Data} | Hypothesis)$ - Data fixed, hypothesis varies -  ***Bayesian***
 
+# Quantifying Random Variables
+
+![](dist2.png)
+
+## What?
+
+**Mathematical functions that define the likelihood of different outcomes of a random variable**
+
+* Remember - they must normalize to 1!
+
+* Input = Random variable (e.g., Flipping a heads OR individual stature)
+* Output = Probability of that event occurring given the context. 
+
+##
+
+$$
+f(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
+$$
+
+##
+
+![](norm.png)
+
+## Discrete Random Variables
+
+**Probability Mass Function (PMF)**
+
+Countable number of distinct values
+
+* Coin flip, die roll, count of students in class, etc.
+
+$$
+P(X = x) = f(x)
+$$
+
+> Let $X$ be the proportion of correct responses on a test with 100 questions. $S_x = {0.00,0.01,0.02,...,0.98,0.99,1.00}$.
+
+## {.smaller}
+
+Random process: 3 flips of a single coin
+
+Sample Space: ${𝐻𝐻𝐻,𝐻𝐻𝑇,𝐻𝑇𝐻,𝑇𝐻𝐻,𝐻𝑇𝑇,𝑇𝐻𝑇,𝑇𝑇𝐻,𝑇𝑇𝑇}$
+
+Let X be a discrete random variable that represents the total number of heads in 3 coin flips.
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+# 1. Define the possible outcomes (0, 1, 2, or 3 heads)
+x <- c(0, 1, 2, 3)
+
+# 2. Define the probabilities for each outcome
+# P(X=0) = 1/8, P(X=1) = 3/8, P(X=2) = 3/8, P(X=3) = 1/8
+probs <- c(1/8, 3/8, 3/8, 1/8)
+
+# 3. Create the plot
+plot(x, probs, 
+     type = "h",             # "h" for high-density vertical lines
+     lwd = 5,                # Line width
+     col = "steelblue",      # Color
+     main = "PMF of Total Heads in 3 Coin Flips",
+     xlab = "Number of Heads (x)",
+     ylab = "P(X = x)",
+     ylim = c(0, 0.5),       # Set y-axis limits
+     xaxt = "n")             # Turn off default x-axis to customize
+
+# 4. Add custom x-axis and points on top of the lines
+axis(1, at = 0:3)
+points(x, probs, pch = 16, cex = 2, col = "steelblue")
+
+```
+
+## Plot
+
+```{r}
+#| echo: false
+
+# 1. Define the possible outcomes (0, 1, 2, or 3 heads)
+x <- c(0, 1, 2, 3)
+
+# 2. Define the probabilities for each outcome
+# P(X=0) = 1/8, P(X=1) = 3/8, P(X=2) = 3/8, P(X=3) = 1/8
+probs <- c(1/8, 3/8, 3/8, 1/8)
+
+# 3. Create the plot
+plot(x, probs, 
+     type = "h",             # "h" for high-density vertical lines
+     lwd = 5,                # Line width
+     col = "steelblue",      # Color
+     main = "PMF of Total Heads in 3 Coin Flips",
+     xlab = "Number of Heads (x)",
+     ylab = "P(X = x)",
+     ylim = c(0, 0.5),       # Set y-axis limits
+     xaxt = "n")             # Turn off default x-axis to customize
+
+# 4. Add custom x-axis and points on top of the lines
+axis(1, at = 0:3)
+points(x, probs, pch = 16, cex = 2, col = "steelblue")
+
+```
+
+:::
+
+## Continuous Random Variables
+
+**Probability Density Function**
+
+The probability of some continuous random variable within some sample space.
+
+Uncountably infinite.
+
+$$
+P(a \leq X \leq b) = \int_a^b f(x)dx
+$$
+
+$$
+\int_{x \ \epsilon \ S_X} f(x)dx = 1
+$$
+
+##
+
+![](area.png)
+
+## Cumulative Distribution Functions (cdf)
+
+* All PMFs / PDFs have a CDF.
+
+* Mass / density functions return a single probability value based on 1 random variable. 
+  * It is often useful in our work to get $P(X) \leq x$.
+  * Think p-values or hypothesis testing. 
+  
+##
+  
+![](pdf_cdf.png)
+
+## Probability in R
+
+`?distributions`
+
+* There are 21 probability distributions in base R.
+
+* Each function is governed by [parameters]{.underline}
+  * For example, mean and standard deviation. 
+  
+* All have the following construction:
+  * `d-xxx` $\rightarrow$ PDF/PMF
+  * `p-xxx` $\rightarrow$ CDF
+  * `q-xxx` $\rightarrow$ quantile function / inverse cdf
+  * `r-xxx` $\rightarrow$ random number generator
+  
+## Common Discrete Distributions
+
+* Bernoulli Distribution - single binary event / trial
+  * size is **always** 1 in a bernoulli distribution. 
+
+```{r}
+#| echo: true
+
+dbinom(x = 0:1, size = 1, prob = 0.35)
+
+barplot(names.arg = 0:1, height = dbinom(0:1, size = 1, p = 0.35), xlab = 'X', ylab = 'Probability')
+```
+
+## Common Discrete Distributions
+
+* Binomial Distribution - total # of successes in $n$ trials.
+
+```{r}
+#| echo: true
+
+dist_1 <- dbinom(x = 1:100, size = 100, prob = 0.6)
+plot(dist_1, type= "h")
+```
+
+##
+
+> What if you want the probability of getting a 60 or lower?
+
+```{r}
+#| echo: true
+
+pbinom(q = 60, size = 100, prob = 0.6,lower.tail = TRUE) # TRUE is default
+```
+
+> What about greater than 60? [Excluding 60]
+
+```{r}
+#| echo: true
+pbinom(q = 60, size = 100, prob = 0.6,lower.tail = FALSE) # TRUE is default
+```
+
+> Greater than or equal to 60
+
+```{r}
+#| echo: true
+pbinom(q = 59, size = 100, prob = 0.6,lower.tail = FALSE) # TRUE is default
+```
+
+## For convincing...
+
+```{r}
+#| echo: true
+
+probs <- NULL
+x <- 1:60
+
+for(i in 1:length(x)){
+  
+  probs[i] <- dbinom(x = x[i], size = 100, prob = 0.6)
+  
+}
+
+sum(probs)
+
+```
+
+## Probabilities and Quantiles
+
+> What if I want the probability between 2 areas? Say 60 and 40. 
+
+```{r}
+#| echo: true
+
+
+pbinom(q = 60, size = 100, prob = 0.6) - pbinom(q = 39, size = 100, prob = 0.6,lower.tail = TRUE)
+```
+
+> What if I want the 95th quantile range?
+
+```{r}
+#| echo: true
+
+qbinom(p = c(0.025, 0.975), size = 100, prob = 0.6)
+```
+
+##
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+library(ggplot2)
+
+# Parameters
+n <- 100
+p <- 0.6
+
+# Quantiles
+q_low  <- qbinom(0.025, size = n, prob = p)
+q_high <- qbinom(0.975, size = n, prob = p)
+
+# PMF data frame
+x_vals <- 0:n
+df <- data.frame(
+  x    = x_vals,
+  prob = dbinom(x_vals, size = n, prob = p),
+  region = case_when(
+    x_vals < q_low               ~ "Lower Tail (2.5%)",
+    x_vals > q_high              ~ "Upper Tail (2.5%)",
+    TRUE                         ~ "Middle 95%"
+  )
+)
+
+# Plot
+ggplot(df, aes(x = x, y = prob, fill = region, color = region)) +
+  geom_segment(aes(xend = x, yend = 0), linewidth = 0.8) +
+  geom_point(size = 2) +
+  geom_vline(xintercept = c(q_low, q_high), linetype = "dashed", color = "grey30") +
+  annotate("label", x = q_low,  y = max(dbinom(x_vals, n, p)) * 0.9,
+           label = paste0("q = ", q_low, "\n(p = 0.025)"),  size = 3.5, color = "#3b82f6") +
+  annotate("label", x = q_high, y = max(dbinom(x_vals, n, p)) * 0.9,
+           label = paste0("q = ", q_high, "\n(p = 0.975)"), size = 3.5, color = "#ef4444") +
+  scale_color_manual(values = c(
+    "Lower Tail (2.5%)" = "#3b82f6",
+    "Middle 95%"        = "#22c55e",
+    "Upper Tail (2.5%)" = "#ef4444"
+  )) +
+  scale_fill_manual(values = c(
+    "Lower Tail (2.5%)" = "#3b82f6",
+    "Middle 95%"        = "#22c55e",
+    "Upper Tail (2.5%)" = "#ef4444"
+  )) +
+  labs(
+    title    = "Binomial PMF with 95% Central Region",
+    subtitle = paste0("X ~ Binomial(n = 100, p = 0.6)  |  95% interval: [", q_low, ", ", q_high, "]"),
+    x        = "x",
+    y        = "P(X = x)",
+    fill     = NULL,
+    color    = NULL
+  ) +
+  xlim(30, 90) +           # zoom in to relevant range
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "top")
+```
+
+## Plot
+
+```{r}
+#| echo: false
+
+library(ggplot2)
+
+# Parameters
+n <- 100
+p <- 0.6
+
+# Quantiles
+q_low  <- qbinom(0.025, size = n, prob = p)
+q_high <- qbinom(0.975, size = n, prob = p)
+
+# PMF data frame
+x_vals <- 0:n
+df <- data.frame(
+  x    = x_vals,
+  prob = dbinom(x_vals, size = n, prob = p),
+  region = case_when(
+    x_vals < q_low               ~ "Lower Tail (2.5%)",
+    x_vals > q_high              ~ "Upper Tail (2.5%)",
+    TRUE                         ~ "Middle 95%"
+  )
+)
+
+# Plot
+ggplot(df, aes(x = x, y = prob, fill = region, color = region)) +
+  geom_segment(aes(xend = x, yend = 0), linewidth = 0.8) +
+  geom_point(size = 2) +
+  geom_vline(xintercept = c(q_low, q_high), linetype = "dashed", color = "grey30") +
+  annotate("label", x = q_low,  y = max(dbinom(x_vals, n, p)) * 0.9,
+           label = paste0("q = ", q_low, "\n(p = 0.025)"),  size = 3.5, color = "#3b82f6") +
+  annotate("label", x = q_high, y = max(dbinom(x_vals, n, p)) * 0.9,
+           label = paste0("q = ", q_high, "\n(p = 0.975)"), size = 3.5, color = "#ef4444") +
+  scale_color_manual(values = c(
+    "Lower Tail (2.5%)" = "#3b82f6",
+    "Middle 95%"        = "#22c55e",
+    "Upper Tail (2.5%)" = "#ef4444"
+  )) +
+  scale_fill_manual(values = c(
+    "Lower Tail (2.5%)" = "#3b82f6",
+    "Middle 95%"        = "#22c55e",
+    "Upper Tail (2.5%)" = "#ef4444"
+  )) +
+  labs(
+    title    = "Binomial PMF with 95% Central Region",
+    subtitle = paste0("X ~ Binomial(n = 100, p = 0.6)  |  95% interval: [", q_low, ", ", q_high, "]"),
+    x        = "x",
+    y        = "P(X = x)",
+    fill     = NULL,
+    color    = NULL
+  ) +
+  xlim(30, 90) +           # zoom in to relevant range
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "top")
+```
+
+:::
+
+## Random Number Generation
+
+> Simulate the number of defective items in 100 batches of 50 items each, where the probability of a single item being defective is 0.02:
+
+```{r}
+#| echo: true
+
+rbinom(n = 100, size = 50, prob = 0.02)
+```
+
+## Common Discrete Distributions
+
+* Binomial / Bernoulli
+* Poisson
+* Geometric
+
+## Continuous Random Variables - Simulate
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+
+library(ggplot2)
+library(dplyr)
+
+# ============================================================
+# SETUP: Human Height ~ Normal(mean = 170cm, sd = 10cm)
+# ============================================================
+mu <- 170   # mean height in cm
+sigma <- 10 # standard deviation
+
+# ============================================================
+# 1. rnorm() — SIMULATE data (like sampling real people)
+# ============================================================
+# "If I randomly sampled 1000 people, what heights would I see?"
+
+set.seed(42)
+sample_heights <- rnorm(n = 1000, mean = mu, sd = sigma)
+
+df_sample <- data.frame(height = sample_heights)
+
+p1 <- ggplot(df_sample, aes(x = height)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 fill = "#93c5fd", color = "white") +
+  geom_density(color = "#1d4ed8", linewidth = 1) +
+  stat_function(fun = dnorm, args = list(mean = mu, sd = sigma),
+                color = "#ef4444", linewidth = 1, linetype = "dashed") +
+  labs(title = "rnorm() — Simulated Sample (n = 1,000)",
+       subtitle = "Blue = observed density | Red dashed = true Normal(170, 10)",
+       x = "Height (cm)", y = "Density") +
+  theme_minimal(base_size = 13)
+
+```
+
+## Plot
+
+```{r}
+#| echo: false
+
+p1
+```
+
+:::
+
+## Continuous Random Variables - Probabilities
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+
+# ============================================================
+# 2. dnorm() — DENSITY (height of the curve at a point)
+# ============================================================
+# "How relatively likely is it to be exactly 170cm vs 190cm?"
+# Note: this is NOT a probability — it's a density value.
+# For continuous distributions, P(X = x) = 0 exactly.
+
+x_vals <- seq(130, 210, length.out = 500)
+df_density <- data.frame(
+  x       = x_vals,
+  density = dnorm(x_vals, mean = mu, sd = sigma)
+)
+
+# Points to highlight
+highlight <- data.frame(
+  x     = c(170, 180, 190),
+  y     = dnorm(c(170, 180, 190), mean = mu, sd = sigma),
+  label = c("dnorm(170) = 0.0399",
+            "dnorm(180) = 0.0242",
+            "dnorm(190) = 0.0054")
+)
+
+p2 <- ggplot(df_density, aes(x = x, y = density)) +
+  geom_line(color = "#1d4ed8", linewidth = 1.2) +
+  geom_point(data = highlight, aes(x = x, y = y), color = "#ef4444", size = 3) +
+  geom_label(data = highlight, aes(x = x, y = y, label = label),
+             nudge_y = 0.003, size = 3.2) +
+  labs(title = "dnorm() — Probability Density Function (PDF)",
+       subtitle = "Height of the curve — higher = more 'likely' region, but not a probability",
+       x = "Height (cm)", y = "Density") +
+  theme_minimal(base_size = 13)
+```
+
+## Plot
+
+```{r}
+#| echo: false
+
+p2
+```
+
+:::
+
+## Continuous Random Variables - cdf (1-tail)
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+
+
+# ============================================================
+# 3. pnorm() — CDF & P-VALUES
+# ============================================================
+# "What is the probability of being shorter than X cm?"
+# This is where p-values live — they are areas under the curve.
+
+# --- One-tailed: P(Height < 185) ---
+cutoff <- 185
+p_lower <- pnorm(cutoff, mean = mu, sd = sigma, lower.tail = TRUE)
+# "What % of people are shorter than 185cm?"
+
+df_shade_lower <- df_density %>% filter(x <= cutoff)
+
+p3 <- ggplot(df_density, aes(x = x, y = density)) +
+  geom_area(data = df_shade_lower, aes(x = x, y = density),
+            fill = "#3b82f6", alpha = 0.4) +
+  geom_line(color = "#1d4ed8", linewidth = 1.2) +
+  geom_vline(xintercept = cutoff, linetype = "dashed", color = "#ef4444") +
+  annotate("label", x = 158, y = 0.025,
+           label = paste0("P(X < 185) = ", round(p_lower, 4),
+                          "\npnorm(185, 170, 10, lower.tail=T)"),
+           size = 3.5, color = "#1d4ed8") +
+  labs(title = "pnorm() — CDF: P(Height < 185cm)",
+       subtitle = "Shaded area = probability = 0.9332 → ~93% of people are shorter than 185cm",
+       x = "Height (cm)", y = "Density") +
+  theme_minimal(base_size = 13)
+```
+
+## Plot
+
+```{r}
+#| echo: false
+
+p3
+```
+
+:::
+
+## Continuous Random Variables - cdf (2-tail)
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+# --- Two-tailed p-value: how unusual is someone 185cm tall? ---
+# In hypothesis testing: "If mean height = 170, how surprising is 185cm?"
+# p-value (two-tailed) = P(X ≤ 155) + P(X ≥ 185)  [symmetric]
+z_score   <- (cutoff - mu) / sigma          # z = 1.5
+p_upper   <- pnorm(cutoff, mean = mu, sd = sigma, lower.tail = FALSE)
+p_twotail <- 2 * p_upper
+
+df_shade_upper <- df_density %>% filter(x >= cutoff)
+df_shade_mirror <- df_density %>% filter(x <= (mu - (cutoff - mu)))  # mirror at 155
+
+p4 <- ggplot(df_density, aes(x = x, y = density)) +
+  geom_area(data = df_shade_upper, aes(x = x, y = density),
+            fill = "#ef4444", alpha = 0.5) +
+  geom_area(data = df_shade_mirror, aes(x = x, y = density),
+            fill = "#ef4444", alpha = 0.5) +
+  geom_line(color = "#1d4ed8", linewidth = 1.2) +
+  geom_vline(xintercept = c(cutoff, mu - (cutoff - mu)),
+             linetype = "dashed", color = "#ef4444") +
+  annotate("label", x = 170, y = 0.030,
+           label = paste0("Two-tailed p-value = ", round(p_twotail, 4),
+                          "\n2 * pnorm(185, 170, 10, lower.tail=F)",
+                          "\nz = ", z_score, "  →  p = ", round(p_twotail, 4),
+                          "\nNot significant at α = 0.05"),
+           size = 3.2, color = "#7f1d1d") +
+  labs(title = "pnorm() — Two-Tailed P-value: How Unusual is 185cm?",
+       subtitle = "Red area = probability of observing a height this extreme or more under H₀",
+       x = "Height (cm)", y = "Density") +
+  theme_minimal(base_size = 13)
+
+```
+
+## Plot
+
+```{r}
+#| echo: false
+
+p4
+```
+
+:::
+
+## Continuous Random Variables - Quantiles
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+# ============================================================
+# 4. qnorm() — QUANTILES (inverse of pnorm)
+# ============================================================
+# "What height separates the top 5% from everyone else?"
+# This is the CRITICAL VALUE concept in hypothesis testing.
+
+q_95   <- qnorm(0.95,  mean = mu, sd = sigma)  # one-tailed 5%
+q_025  <- qnorm(0.025, mean = mu, sd = sigma)  # two-tailed 2.5% lower
+q_975  <- qnorm(0.975, mean = mu, sd = sigma)  # two-tailed 2.5% upper
+
+df_shade_95   <- df_density %>% filter(x >= q_95)
+df_shade_low  <- df_density %>% filter(x <= q_025)
+df_shade_high <- df_density %>% filter(x >= q_975)
+
+p5 <- ggplot(df_density, aes(x = x, y = density)) +
+  geom_area(data = df_shade_low,  aes(x = x, y = density), fill = "#f97316", alpha = 0.5) +
+  geom_area(data = df_shade_high, aes(x = x, y = density), fill = "#f97316", alpha = 0.5) +
+  geom_line(color = "#1d4ed8", linewidth = 1.2) +
+  geom_vline(xintercept = c(q_025, q_975), linetype = "dashed", color = "#f97316") +
+  annotate("label", x = q_025, y = 0.015,
+           label = paste0("qnorm(0.025)\n= ", round(q_025, 1), "cm"),
+           size = 3.2, color = "#7c2d12") +
+  annotate("label", x = q_975, y = 0.015,
+           label = paste0("qnorm(0.975)\n= ", round(q_975, 1), "cm"),
+           size = 3.2, color = "#7c2d12") +
+  annotate("text", x = 170, y = 0.022,
+           label = "Middle 95%\n(±1.96 SDs)", size = 3.5, color = "#1d4ed8") +
+  labs(title = "qnorm() — Quantiles / Critical Values",
+       subtitle = "qnorm(0.025) & qnorm(0.975) give the 95% interval — the origin of the ±1.96 rule!",
+       x = "Height (cm)", y = "Density") +
+  theme_minimal(base_size = 13)
+```
+
+## Plot
+
+```{r}
+#| echo: false
+
+p5
+```
+
+:::
+
+## Why Multiply by 2?
+
+![](norm2.png)
 
