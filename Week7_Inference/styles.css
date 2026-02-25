@@ -1,0 +1,36 @@
+/* styles.css — companion to equation_of_a_line.qmd */
+
+/* Callout box tweaks for dark theme */
+.callout {
+  border-left-width: 4px;
+}
+
+.callout-note {
+  border-left-color: #4FC3F7;
+  background-color: rgba(79, 195, 247, 0.1);
+}
+
+.callout-warning {
+  border-left-color: #FF8A65;
+  background-color: rgba(255, 138, 101, 0.1);
+}
+
+.callout-important {
+  border-left-color: #CE93D8;
+  background-color: rgba(206, 147, 216, 0.1);
+}
+
+/* Make table text readable */
+table {
+  font-size: 0.85em;
+}
+
+/* Ensure r-fit-text is centered */
+.r-fit-text {
+  text-align: center;
+}
+
+/* Slightly larger math */
+.math.display {
+  font-size: 1.2em;
+}

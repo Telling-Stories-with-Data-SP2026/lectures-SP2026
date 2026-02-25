@@ -1,0 +1,290 @@
+---
+title: "Understanding the Equation of a Line"
+subtitle: "$Y = \\beta X + \\epsilon$"
+format:
+  revealjs:
+    theme: dark
+    transition: slide
+    highlight-style: github
+    slide-number: true
+    chalkboard: false
+    css: styles.css
+execute:
+  echo: false
+---
+
+## The Full Equation {auto-animate=true}
+
+<br>
+
+::: {.r-fit-text}
+$$Y = \beta X + \epsilon$$
+:::
+
+---
+
+## Breaking It Down {auto-animate=true}
+
+::: {.r-stack}
+
+::: {.fragment .fade-in-then-semi-out}
+$$\color{#4FC3F7}{Y} = \beta X + \epsilon$$
+
+::: {.callout-note icon=false}
+### 👁️ $Y$ — The Outcome
+$Y$ is what we **observe directly** in the world.  
+It's real, measurable, and varies across individuals or cases.  
+Think of it as the **data we actually collect**.
+:::
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+$$Y = \color{#FF8A65}{\beta} X + \epsilon$$
+
+::: {.callout-warning icon=false}
+### 🔒 $\beta$ — The Parameters (Unobserved, Indirect)
+$\beta$ is **never directly seen** — we can only *estimate* it from data.  
+It represents the **true relationship** between $X$ and $Y$ in the population.  
+We infer $\beta$ indirectly through the data we collect.
+:::
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+$$Y = \beta X + \color{#CE93D8}{\epsilon}$$
+
+::: {.callout-important icon=false}
+### 🌫️ $\epsilon$ — The Error (Unobserved Uncertainty)
+$\epsilon$ captures everything we **didn't measure or can't explain**.  
+It is unobserved — we never know it directly.  
+It represents the **irreducible randomness** in the world.
+:::
+:::
+
+:::
+
+---
+
+## $Y$ — Observed but Variable {.smaller}
+
+$$\color{#4FC3F7}{Y} = \beta X + \epsilon$$
+
+<br>
+
+::: columns
+::: {.column width="55%"}
+::: {.fragment}
+**$Y$ is observable.**  
+We *see* it, *measure* it, *collect* it.
+
+Examples:
+- Income of a person
+- Blood pressure of a patient  
+- Test score of a student
+:::
+
+::: {.fragment}
+<br>
+**But $Y$ is not fixed.**  
+It varies — sometimes wildly — across observations.  
+That variation is *why we need a model*.
+:::
+:::
+
+::: {.column width="45%"}
+::: {.fragment}
+```{r}
+#| fig-height: 4
+set.seed(42)
+x <- rnorm(60, mean = 5, sd = 1.5)
+y <- 2 + 1.5 * x + rnorm(60, sd = 2)
+plot(x, y,
+     pch = 19, col = "#4FC3F7",
+     xlab = "X", ylab = "Y",
+     main = "Observed Y values",
+     bg = "transparent",
+     col.axis = "white",
+     col.lab = "white",
+     col.main = "white",
+     fg = "white")
+```
+:::
+:::
+:::
+
+---
+
+## $Y$ Has a Mean {.smaller}
+
+$$\color{#4FC3F7}{E[Y]} = \beta X$$
+
+<br>
+
+::: {.fragment}
+The **expected value** (mean) of $Y$ given $X$ is a *smooth function* of $X$.  
+This is the signal we're trying to recover.
+:::
+
+<br>
+
+::: {.fragment}
+```{r}
+#| fig-height: 3.2
+set.seed(42)
+x <- rnorm(60, mean = 5, sd = 1.5)
+y <- 2 + 1.5 * x + rnorm(60, sd = 2)
+plot(x, y, pch = 19, col = "#4FC3F7",
+     xlab = "X", ylab = "Y",
+     main = "E[Y|X] — the conditional mean of Y",
+     col.axis = "white", col.lab = "white",
+     col.main = "white", fg = "white")
+abline(lm(y ~ x), col = "#FF8A65", lwd = 3)
+legend("topleft", legend = "E[Y|X] = βX", col = "#FF8A65",
+       lwd = 3, bty = "n", text.col = "white")
+```
+:::
+
+---
+
+## $\beta$ — Unobserved, Indirect {.smaller}
+
+$$Y = \color{#FF8A65}{\beta} X + \epsilon$$
+
+<br>
+
+::: columns
+::: {.column width="60%"}
+::: {.fragment}
+**$\beta$ is the true population parameter.**  
+It exists in theory — but we **never observe it directly**.
+:::
+
+::: {.fragment}
+<br>
+We only ever have **estimates** $\hat{\beta}$ computed from data.
+
+$$\hat{\beta} = (X'X)^{-1}X'Y$$
+
+These estimates are **indirect** — they depend entirely on what we observed in $Y$ and $X$.
+:::
+
+::: {.fragment}
+<br>
+::: {.callout-warning icon=false}
+### The Estimation Gap
+True $\beta$ ≠ Estimated $\hat{\beta}$  
+The difference is sampling uncertainty.
+:::
+:::
+:::
+
+::: {.column width="40%"}
+::: {.fragment}
+```{r}
+#| fig-height: 4.5
+set.seed(123)
+betas <- replicate(500, {
+  x <- rnorm(30, 5, 1.5)
+  y <- 2 + 1.5 * x + rnorm(30, sd = 2)
+  coef(lm(y ~ x))[2]
+})
+hist(betas, col = "#FF8A65", border = "white",
+     main = "Distribution of β̂\nacross 500 samples",
+     xlab = "Estimated β",
+     col.axis = "white", col.lab = "white",
+     col.main = "white", fg = "white")
+abline(v = 1.5, col = "white", lwd = 2, lty = 2)
+legend("topright", legend = "True β = 1.5",
+       col = "white", lwd = 2, lty = 2,
+       bty = "n", text.col = "white")
+```
+:::
+:::
+:::
+
+---
+
+## $\epsilon$ — Unobserved Uncertainty {.smaller}
+
+$$Y = \beta X + \color{#CE93D8}{\epsilon}$$
+
+<br>
+
+::: {.fragment}
+**$\epsilon$ is the error term — permanently unobserved.**  
+
+It captures everything that $X$ doesn't explain:
+- Measurement error  
+- Omitted variables  
+- Inherent randomness in the world
+:::
+
+::: {.fragment}
+<br>
+
+::: columns
+::: {.column width="50%"}
+We **assume** $\epsilon \sim N(0, \sigma^2)$
+
+- Mean zero: no systematic bias  
+- Finite variance: uncertainty is bounded  
+- Independent of $X$: errors aren't predictable
+:::
+::: {.column width="50%"}
+```{r}
+#| fig-height: 3
+set.seed(42)
+x <- rnorm(60, 5, 1.5)
+y <- 2 + 1.5 * x + rnorm(60, sd = 2)
+resid <- residuals(lm(y ~ x))
+plot(x, resid, pch = 19, col = "#CE93D8",
+     xlab = "X", ylab = "Residuals (proxy for ε)",
+     main = "Residuals ≈ ε (but not equal!)",
+     col.axis = "white", col.lab = "white",
+     col.main = "white", fg = "white")
+abline(h = 0, col = "white", lwd = 2, lty = 2)
+```
+:::
+:::
+:::
+
+---
+
+## Putting It All Together {auto-animate=true}
+
+<br>
+
+::: {.r-fit-text}
+$$\color{#4FC3F7}{Y} = \color{#FF8A65}{\beta} X + \color{#CE93D8}{\epsilon}$$
+:::
+
+<br>
+
+| Term | Color | Observed? | Nature |
+|------|-------|-----------|--------|
+| $Y$ | [Blue]{style="color:#4FC3F7"} | ✅ Yes — directly | Outcome; has a mean |
+| $\beta$ | [Orange]{style="color:#FF8A65"} | ❌ No — indirectly | Population parameter; estimated |
+| $\epsilon$ | [Purple]{style="color:#CE93D8"} | ❌ No — never | Random uncertainty |
+
+---
+
+## The Key Insight {background-color="#1a1a2e"}
+
+<br><br>
+
+::: {.r-fit-text .fragment}
+We observe **$Y$**
+:::
+
+::: {.r-fit-text .fragment}
+We estimate **$\beta$**
+:::
+
+::: {.r-fit-text .fragment}
+We assume **$\epsilon$**
+:::
+
+::: {.fragment}
+<br>
+
+> *Statistics is the art of learning about the unobserved ($\beta$, $\epsilon$) from the observed ($Y$).*
+:::
