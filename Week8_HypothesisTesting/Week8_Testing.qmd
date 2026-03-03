@@ -550,5 +550,352 @@ Most assumptions can be met by transforming the data:
 
 * Assumptions should be checked prior to choosing (and applying) any analyses to the data
 
+# NHST in R
+
+## Review
+
+* **(Statistical) Hypothesis Test:** Do the data support a given underlying assumption or hypothesis?
+  * Differences in means, medians, frequencies
+  
+* **Null Hypothesis:** baseline assumption is always towards equivalence
+
+* **Alternative Hypothesis:** proposed hypothesis tested against the null.
+
+* **Statistical Significance:** observed relationship is unlikely due to chance alone
+  * *a true difference between the means*
+  
+## Review
+
+* **Test Statistic:** A numeric value calculated from the ***Sample*** data that summarizes the relationship to the hypothesis. 
+  * t-test, F-test, etc.
+  
+* **$\alpha$ (level of significance):** probability of a making a wrong decision when the null hypothesis is true
+  * user-defined
+  
+* **p-value:** probability of a getting a more extreme value
+  * *Did the observed value occur by chance alone?*
+  
+##
+
+![](nhst.png){fig-align="center"}
+
+## Review
+
+* **Confidence Interval:** The range within which the true value falls X% of the time, *given infinite repeated experimemts.*
+
+* **Type 1 Error:** rejecting the null hypothesis when it is in fact true ($\alpha$) $\rightarrow$ ***False Positive***
+
+* **Type 2 Error:** Failing to reject the null hypothesis when it is in fact false $\rightarrow$ **False Negative**
+
+* **Familywise Error Rate (FWER):** Probability of making 1+ false conclusions in a **series** of hypothesis tests
+  * Compounds when running multiple tests
+  
+## Remember
+
+1.  *p-values*, *confidence intervals*, and *test-statistics* **do not** speak about [uncertainty]{.underline} or [true probability]{.underline} in the data
+
+2.  Significance **does not** imply strength, magnitude, or importance
+
+##
+
+![](cook.png){fig-align="center"}
+
+## Setup
+
+```{r}
+#| echo: true
+#| message: false
+
+library(tidyverse)
+library(magrittr)
+library(archdata)
+library(readxl)
+library(dunn.test)
+
+data(Snodgrass)
+summary(Snodgrass)
 
 
+```
+
+# Normal Continuous Data
+
+## 2 Unpaired Groups
+
+**Independent T-Test:** Comparison between 2 group means. 
+
+![](t_test.png){fig-align="center"}
+
+## Independent T Test
+
+`t.test(y~x, data = data)`
+
+* $y$ is a continuous variable
+* $x$ is a grouping variable [factor]
+
+```{r}
+#| echo: true
+
+t.test(Points ~ Inside, data = Snodgrass)
+```
+
+## Independent T Test{.smaller}
+
+`t.test(y1, y2)`
+
+* $y1$ is a continuous variable of group A
+* $y2$ is a continuous variable of group B 
+
+```{r}
+#| echo: true
+
+inside <- Snodgrass %>% filter(Inside == "Inside")
+outside <- Snodgrass %>% filter(Inside == "Outside")
+
+t.test(inside$Point, outside$Points)
+```
+
+## Multiple Group Comparisons
+
+* As the number of tests increase, so  does the probability of Type 1 error.
+
+**Example:**
+
+If I run 3 t-tests back-to-back-to-back:
+
+* Overall probablity of **NO** Type 1 Error is $0.95^3 = 0.857$.
+  * Therefore, on the next test, the probability of a Type 1 Error is now 0.14 NOT 0.05.
+    * $1-0.857 = 0.143$
+    
+## 3+ Unpaired Groups
+
+**One Way Anova (Analysis of Variance):** Comparison between three or more group means
+  * Assumes homogeneity of variance
+  
+![](aov.png){fig-align="center"}
+
+## One Way ANOVA
+
+`aov(y ~ x, data = data)`
+
+* $y$ is a continuous variable
+* $x$ is a group / factor variable
+
+```{r}
+#| echo: true
+
+seg_aov <- aov(Points ~ Segment, data = Snodgrass)
+summary(seg_aov)
+```
+
+## Normal Continuous: 3+ Post-Hoc Test(s)
+
+**Tukey Honest Significant Difference:** post-hoc procedure for pairwise comparisons of all groups.
+  * Controls ***familywise error rate***
+
+  
+```{r}
+#| echo: true
+
+TukeyHSD(seg_aov)
+```
+
+##
+
+```{r}
+#| echo: true
+
+plot(TukeyHSD(seg_aov))
+```
+
+
+## Normal Continuous: 3+ Post-Hoc Test(s)
+
+**Pairwise T Test** post-hoc procedure for pairwise comparisons of all groups.
+  * Controls ***familywise error rate***
+  * Less *robust* than Tukey's
+  
+## {.smaller}
+
+`pairwise.t.test(x, g, p.adjust.method)`
+
+* `x` is the continuous variable
+* `g` is the grouping variable
+* `p.adjust.method` is the method used to make comparisons
+  *  Most common: bonferroni
+  
+```{r}
+#| echo: true
+
+pairwise.t.test(Snodgrass$Points, Snodgrass$Segment, p.adjust.method = "bonferroni")
+```
+
+## Normal Continuous: Adding Covariates
+
+**Analysis of Covariance (ANCOVA):** Adding covariate relationship to a one way ANOVA.
+  * Assumes normality and homogeneity of variance
+  
+* Why?
+
+  * What is the [maine]{.underline} effect?
+  * What is an interaction?
+    * *The effect of a change in the level or value of one explanatory variable on the mean outcome depends on the level or value of another explanatory variable*
+    * Example: How does height differ between populations given biological sex also leads to said variation?
+    
+##
+
+```{r}
+#| echo: true
+#| message: false
+
+library(multcomp)
+
+fixed <- aov(Points ~ Segment + Ceramics, data = Snodgrass)
+summary(fixed)
+
+postHocs <- glht(fixed, linfct = mcp(Segment = "Tukey"))
+summary(postHocs)
+```
+
+##
+
+```{r}
+#| echo: true
+
+library(effects)
+
+adj.means.ex <- effect("Segment", fixed)
+plot(adj.means.ex)
+```
+
+##
+
+```{r}
+#| echo: true
+#| message: false
+
+library(multcomp)
+
+inter <- aov(Points ~ Segment*Ceramics, data = Snodgrass)
+summary(inter)
+
+postHocs <- glht(inter, linfct = mcp(Segment = "Tukey"))
+summary(postHocs)
+```
+
+##
+
+```{r}
+#| echo: true
+
+adj.means.ex <- effect("Segment:Ceramics", inter)
+plot(adj.means.ex)
+```
+
+## Continous Paired: 2 Paired Groups
+
+**Paired T Test:** when data contain 2 experimental conditions from the *same participant*
+
+  * "repeated measure design"
+  * Comparison of means between both conditions
+  * **NOT APPROPRIATE FOR OBSERVER ERROR**
+  
+```{r}
+paired <- read_excel("data/paired_normal.xls")
+head(paired)
+```
+
+##
+
+`t.test(y1, y2, paired = TRUE)`
+
+```{r}
+#| echo: true
+
+t.test(paired$xcb, paired$xcb2, paired = TRUE)
+```
+
+# Ordinal or Rank or Non-Continuous Data
+
+## Non-Parametric 2 Unpaired Groups
+
+**Mann-Whitney U Test:** sibling to the independent t test
+
+*  Compares medians instead of means
+* Also called the Wilcoxon Rank Sum Test
+
+`wilcox.test(y ~ x, data = data)`
+
+```{r}
+#| echo: true
+
+wilcox.test(Effigies ~ Inside, data = Snodgrass)
+```
+
+## Non-Parametric 3+ Unpaired Groups
+
+**Kruskal Wallis Test:** sibling to one way ANOVA
+
+`kruskal.test(y ~ x, data = data)`
+
+```{r}
+#| echo: true
+
+kruskal.test(Effigies ~ Segment, data = Snodgrass)
+```
+
+## Non-Parametric 3+ Unpaired Groups Post-Hoc
+
+**Dunn Test:** nonparametric sibling to Tukey's HSD and Bonferroni Pairwise.
+
+`dunn.test(y, g, method)`
+
+##
+
+```{r}
+#| echo: true
+#| include: true
+#| results: markup
+
+library(dunn.test)
+
+print(dunn.test(Snodgrass$Effigies, Snodgrass$Segment, method = "holm"))
+```
+
+## Power Analysis in R{.smaller}
+
+**What sample size do I need to detect an effect?**
+
+$1-\beta$ The probability of actually detecting an effect!
+
+* Potential package: `pwr`
+
+```{r}
+#| echo: true
+#| eval: false
+
+#install.packages('pwr')
+
+pwr.t.test(n=NULL, d=NULL, sig.level=0.05,power=NULL,
+type=c("two.sample","one.sample","paired"), 
+alternative=c("two.sided","less","greater"))
+```
+
+  * n: sample size
+  * d: effect size
+  * sig.level: threshold
+  * power: power of test
+
+##
+
+![](power.png){fig-align="center"}
+
+##
+
+> https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower
+
+![](g_power.png){fig-align="center"}
+
+## 
+
+![](bio.png){fig-align="center"}
