@@ -234,6 +234,55 @@ summary(fit)
 
 ![](reg2.png)
 
+## Practice!
+
+Import the `Age_Femur_Measurements` csv file. This is in the Lectures folder under Week 11.
+
+I am interested in the relationship between long bone measurements and age. I know age but am interested in the expected values of `f_mxl` and `f_db`.
+
+1.  Create a regression model for f_mxl and age and f_db and age
+
+2.  What is the regression equation and standard error for each?
+
+3.  Which model has a higher adjusted R-squared value?
+ 
+## Answer!
+
+```{r}
+#| echo: true
+
+dat <- read.csv("Age_Femur_Measurements.csv")
+```
+
+```{r}
+#| echo: true
+
+mod1 <- lm(f_mxl ~ age_y, data = dat)
+mod2 <- lm(f_db ~ age_y, data = dat)
+```
+
+##
+
+:::{.panel-tabset}
+
+## f_mxl
+
+```{r}
+#| echo: true
+
+summary(mod1)
+```
+
+## f_db
+
+```{r}
+#| echo: true
+
+summary(mod2)
+```
+
+:::
+
 ## Confidence and Prediction Intervals{.smaller}
 
 * **Confidence Intervals (CI):** how well you have determined them mean
@@ -319,6 +368,46 @@ ggplot(sub2) + theme_bw() + geom_point(aes(x=lhml, y=LFML)) + geom_line(aes(x=lh
 
 ```
 
+## Practice
+
+1.  Create 95% Confidence and Prediction intervals for the `f_mxl ~ age_y` model
+
+2.  Save as objects
+
+3.  Convert to data.frame
+
+4.  Rename the columns to make them informative
+    * Ex: “UprPI” or “LwrCI” 
+
+5.  Add the intervals data to femur and save as a new object, femur2
+
+6.  Plot the original data, 95% confidence interval, and 95% prediction interval
+
+## Answers
+
+```{r}
+#| echo: true
+
+mod3 <- lm(f_mxl ~ age_y, data=dat)
+
+ci <- as.data.frame(predict(mod3, interval="confidence"))
+pi <- as.data.frame(predict(mod3, interval="prediction"))
+
+names(ci) <- c('fit','lwrCI','uprCI')
+names(pi) <- c('fit','lwrPI','uprPI')
+
+dat2<- cbind(dat, ci, pi[c('lwrPI','uprPI')])
+
+```
+
+```{r}
+#| echo: true
+
+ggplot(dat2, aes(x=age_y)) + theme_bw() + geom_point(aes(y=f_mxl), color="cornflowerblue",size=2) + geom_line(aes(y=lwrCI), lty="dotted") + geom_line(aes(y=uprCI), lty="dotted") + geom_line(aes(y=lwrPI), lty="dashed") + geom_line(aes(y=uprPI), lty="dashed")
+
+```
+
+
 ## Multiple Regression
 
 * 2+ predictors, 1 outcome
@@ -399,5 +488,44 @@ round(summary(mod2_int)$coefficients, 3)
 
 **Interpretation:**
 There is not a significant interaction between Population and Illiteracy that affects the overall prevalence of Murder
+
+## Stepwise Selection {.smaller}
+
+* Use Stepwise Selection to pick the combination of variables that results in the “best” fit:
+
+    * Forward Selection: Starting with the intercept, add variables
+
+    * Backward Selection: Starting with all variables, remove one at a time
+
+    * All-Subsets Regression: All combination of variables is attempted 
+
+`MASS::stepAIC(object, direction=c("both", "backward", "forward"))`
+
+    - object: the model (does not have to be a linear model!)
+    - direction: whether selection should be conducted forward, backward, or in both directions (aka all-subsets)
+
+##
+
+```{r}
+#| echo: true
+
+mod4 <- lm(Murder ~ Population + Illiteracy + Income + Frost, data=states)
+
+MASS::stepAIC(mod4,     
+      direction="backward")
+
+```
+
+## Collinearity
+
+***Stepwise selection is a useful tool for prevent the inclusion of variables that are [collinear]{.underline} within a model.***
+
+**Collinearity:** linear dependency between two variables
+
+  * Correlation is a good way to find collinearity between two variables
+
+  * Inflates the standard error of coefficients, therefore suggesting they are not significant to the model when they actually are
+
+  * Does not affect the model’s ability to predict, but does affect interpretability of the variable relationships
 
 ##
