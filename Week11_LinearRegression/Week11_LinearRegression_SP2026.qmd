@@ -528,4 +528,40 @@ MASS::stepAIC(mod4,
 
   * Does not affect the model’s ability to predict, but does affect interpretability of the variable relationships
 
-##
+## 
+
+```{r}
+#| echo: true
+
+# remotes::install_github("avehtari/ROS-Examples",subdir = "rpackage")
+
+earn <- rosdata::earnings
+
+# earnk is thousands. So 50 = 50K or 50000
+fit <- lm(earnk ~ height + male, data = earn)
+summary(fit)
+```
+
+## Idea 1 
+
+> Interpret coefficients as comparisons, not effects!
+
+$$
+earnings = -26.0 + 0.6*height + 10.6*male + \epsilon
+$$
+
+* It would be easy for us to assume the ***effect*** of height is `$600.00` (`0.6*$1,000`) or the effect of sex is `$10,600` (`10.6*1000`).
+
+    * This assumes for every 1 unit increase in height, earnings go up by $600.
+
+**Does this even make sense?**
+
+## Instead...
+
+* *Under the fitted model, the average difference in earnings when comparing 2 people of the same sex but 1 unit difference in height is $600.*
+
+OR
+
+* *When comparing 2 people of the same height but different sex, the man's earnings will be $10,600 as compared to the female.*
+
+**To be safe, always interpret as a comparison!**
