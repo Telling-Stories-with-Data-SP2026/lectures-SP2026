@@ -542,7 +542,7 @@ fit <- lm(earnk ~ height + male, data = earn)
 summary(fit)
 ```
 
-## Idea 1 
+## Interpretation
 
 > Interpret coefficients as comparisons, not effects!
 
@@ -565,3 +565,51 @@ OR
 * *When comparing 2 people of the same height but different sex, the man's earnings will be $10,600 as compared to the female.*
 
 **To be safe, always interpret as a comparison!**
+
+## Interpreting Multiple Predictors
+
+```{r}
+#| echo: true
+
+fit2 <- lm(earnk ~ ethnicity + male + education + height, data = earn)
+
+summary(fit2)
+```
+
+##
+
+We interpret regression slopes as comparisons of individuals that differ in one predictor while being *at the same levels of other predictors.* 
+
+**AKA - we hold constant variable(s) while letting the variable of interest vary.**
+
+> How do earnings change if you are a Hispanic male?
+
+$$
+earnk = -40.4611 + -2.0656*(1)
+$$
+
+##
+
+> What about a black male with 12 years of education?
+
+Note how the population category 'Black' is missing from the output. This means R is using it as the [baseline]{.underline} category. This is encapsulated in the Intercept term .
+
+$$
+earnk = -40.4611 + 11.8837*(1) + 2.5118*(12)
+$$
+
+## Data Matters!
+
+* We must be careful in our interpretations of relationships and predictions from models.
+
+* If our data are variable and extreme, [true] associations OR effects may be hard to detect.
+
+* This is a fundamental component of the mathematics of regression. 
+
+##
+
+![](reg_comic.png)
+
+##
+
+![](reg_mean.png)
