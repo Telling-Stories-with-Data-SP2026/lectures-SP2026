@@ -1,0 +1,84 @@
+---
+title: "Generalized Linear Models"
+format: 
+  revealjs:
+    theme: simple
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+    html-math-method: mathjax 
+    highlight-style: github
+editor_options: 
+  chunk_output_type: console
+---
+
+## Linear Model Assumptions
+
+* Normally distributed [errors]{.underline}
+
+* Additive effects (remember the `+` sign)
+
+* Generally continuous outcome
+
+* Linear predictor $X\beta$
+
+  * `X` = predictors; $\beta$ = coefficients
+  
+#
+
+How can we predict an outcome that is not continuous?
+
+**Caveat: We still think of this as a 'linear' model**
+
+$$
+g(y) = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_kX_k
+$$
+
+***This setup means the `y` variable is still a [linear] combination of variables.***
+
+## Generalized Linear Models
+
+* Outcome data `y` that are non-continuous
+
+  * Binary (0/1)
+  * Multiple Categories
+  * Ordinal Data
+  * Count Data
+  
+* We use something called a **link function** to [*transform*]{.underline} the observed data to something that looks [***linear***].
+
+$$
+g(y) = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_kX_k
+$$
+
+## Logistic Regression
+
+* Categorical Outcomes [one way...]
+
+    * Binary (Bernoulli)
+    * Multinomial
+    
+* Logistic distribution
+
+$$
+\text{logit}(p) = \ln\left( \frac{p}{1-p} \right) = \beta_0 + \beta_1 x_1 + \dots + \beta_k x_k
+$$
+
+##
+
+![](logistic.png)
+
+## Algorithm
+
+**Maximum Likelihood Estimation**
+
+* Parameters are chosen to *maximize* the likelihood that the assumed model fits the data
+
+    * Find parameters of a model that *maximize* the likelihood of the output. 
+    
+    * The **higher** the likelihood the better the fit.
+    
+* Note - this algorithm can work instead of **OLS**! I would recommend MLE or [Bayesian]{.underline} approaches.
+
