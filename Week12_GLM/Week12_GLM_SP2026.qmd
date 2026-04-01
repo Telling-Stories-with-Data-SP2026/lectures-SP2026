@@ -8,7 +8,6 @@ format:
     chalkboard: false # Great for drawing during stats lectures
     incremental: false # Bullet points appear one by one
     embed-resources: true
-    html-math-method: mathjax 
     highlight-style: github
 editor_options: 
   chunk_output_type: console
@@ -378,3 +377,377 @@ fit2
 * What is the rate of misclassification?
 
 * Create Odds Ratios and interpret them
+
+# Count Data
+
+* Poisson
+
+* Negative Binomial
+
+## Poisson Regression
+
+$$
+y_i \sim Poisson(e^{X_i\beta})
+$$
+
+* $y$ follows a Poisson distribution
+
+* Logarithmic link function
+
+  * Remember the opposite here is to exponentiate!
+  
+* Mean = variance
+
+* **Interpretation:** The count of the $y$ variable changes as a factor / magnitude of the predictor.
+
+##
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+![](poisson.png)
+
+:::
+
+:::{.column width = "50%"}
+
+![](pois_reg.png)
+
+:::
+
+::::
+
+##
+
+## 
+
+```{r}
+#| echo: true
+
+set.seed(1991)
+
+n <- 50
+x <- runif(n, -2, 2)
+a <- 1
+b <- 2
+linpred <- a + b*x
+y <- rpois(n, exp(linpred))
+fake <- data.frame(x = x, y = y)
+head(fake)
+```
+
+##
+
+```{r}
+#| echo: true
+#| message: false
+
+library(tidyverse)
+
+library(ggplot2)
+
+ggplot(fake, aes(x = x, y = y)) +
+  geom_point() +
+  geom_smooth(method = "glm", 
+              method.args = list(family = "poisson"), 
+              se = TRUE) + theme_classic()
+```
+
+## Poisson Regression
+
+```{r}
+#| echo: true
+
+pois <- glm(y ~ x, family = "poisson", data = fake)
+summary(pois)
+```
+
+## Interpretation
+
+* Model Scale
+  
+  * Log-count per unit increase...
+  
+* Real World Scale
+
+  * $e^x$ 
+  
+    * Rate / Count per unit increase
+    
+```{r}
+#| echo: true
+
+exp(pois$coefficients)
+```
+
+## Incidence Rate Ratio
+
+* IRR > 1 = A one unit increase in predictor increases the expected count.
+
+* IRR < 1: A one-unit increase in the predictor decreases the expected count.
+
+* Our Model:
+
+  * IRR = 7.45
+  
+    * For every 1 unit change in X, the count increases by 7.45 times or a 645% increase.
+    
+## Over and Under Dispersion
+
+**Remember, an assumption of Poisson is that the variance equals the mean and DOES NOT change**
+
+What happens if there is more or less variation? 
+
+##
+
+```{r}
+phi_grid <- c(0.1, 1, 10)
+K <- length(phi_grid)
+y_nb <- as.list(rep(NA,K))
+fake_nb <- as.list(rep(NA, K))
+fit_nb <- as.list(rep(NA, K))
+
+library(MASS)
+for(k in 1:K){
+  
+  y_nb[[k]] <- rnegbin(n, exp(linpred), phi_grid[k])
+  fake_nb[[k]] <- data.frame(x=x, y=y_nb[[k]])
+  fit_nb[[k]] <- glm.nb(y ~ x, data = fake_nb[[k]])
+  
+}
+
+```
+
+:::{.panel-tabset}
+
+## Dispersion 1
+
+```{r}
+x <- fake_nb[[1]]$x
+plot(fake_nb[[1]]$x, fake_nb[[1]]$y)
+curve(exp(coef(fit_nb[[1]])[1] + coef(fit_nb[[1]])[2]*x), add = T )
+```
+
+## Dispersion 2
+
+```{r}
+x <- fake_nb[[2]]$x
+plot(fake_nb[[2]]$x, fake_nb[[2]]$y)
+curve(exp(coef(fit_nb[[2]])[1] + coef(fit_nb[[2]])[2]*x), add = T )
+```
+
+## Dispersion 3
+
+```{r}
+x <- fake_nb[[3]]$x
+plot(fake_nb[[3]]$x, fake_nb[[3]]$y)
+curve(exp(coef(fit_nb[[3]])[1] + coef(fit_nb[[3]])[2]*x), add = T )
+```
+
+:::
+
+## Negative Binomial Regression
+
+* Generalization of Poisson with over / under dispersion
+
+  * Having lots of 0's counts as a dispersion issue.
+  
+* Generally more robust in real world scenarios...
+
+$$
+y_i \sim negative\space binomial(e^{X_i\beta}, \phi) 
+$$
+
+## Roaches Example
+
+```{r}
+#| echo: true
+
+roach <- rosdata::roaches
+roach$roach100 <- roach$roach1 / 100
+head(roach)
+```
+
+```{r}
+#| echo: true
+
+fit1 <- glm(y ~ roach100 + treatment + senior, family = "poisson", data = roach)
+
+library(MASS)
+fit2 <- glm.nb(y ~ roach100 + treatment + senior, data = roach)
+```
+
+## 
+
+:::{.panel-tabset}
+
+## Poisson
+
+```{r}
+summary(fit1)
+```
+
+## Negative Binomial
+
+```{r}
+summary(fit2)
+```
+
+:::
+
+```{r}
+#| echo: true
+
+exp(fit2$coef)
+```
+
+
+## Logistic Binomial
+
+* Previously, we fit a logistic regression to binary data...
+
+  * What if we have count data and want to know a probability of success.
+  
+  
+```{r}
+#| echo: true
+
+N <- 100
+height <- rnorm(N, 72, 3)
+p <- 0.4 + 0.1*(height-72) / 3
+n <- rep(20, N)
+y <- rbinom(N, n, p)
+data <- data.frame(n = n, y = y, height = height)
+```
+
+$$
+y_i \sim Binomial(n_i, p_i) 
+\newline
+p_i = logit^-1(X_i\beta)
+$$
+
+## Logistic Binomial Regression 
+
+```{r}
+#| echo: true
+
+binom <- glm(cbind(y, n-y) ~ height, family = "binomial", data = data)
+
+summary(binom)
+```
+
+```{r}
+#| echo: true
+
+exp(binom$coef)
+```
+
+## Probit Regression
+
+**Normally Distributed Latent Data**
+
+* Similar construction to the logit model, except the link function changes to the probit link function.
+
+* Logit = Logistic distribution
+
+  * Ambiguous interpretation
+  
+  * Mathematically easier
+
+* Probit = Normal Distribution
+
+  * Straightforward interpretation
+  
+  * Mathematically more difficult
+  
+##
+
+![](logit_probit.jpg)
+
+## Comparison
+
+`Wells` dataset
+
+$$
+y_i = \begin{cases} 1 & \text{if } \text{household switched to a new well} \\ 0 & \text{otherwise } \text{household did not switcn wells} \end{cases}
+$$
+
+```{r}
+#| echo: true
+
+wells <- rosdata::wells
+head(wells)
+```
+
+## Comparison
+
+:::{.panel-tabset}
+
+## Logit
+
+```{r}
+#| echo: true
+
+logit_model <- glm(switch ~ dist100, data = wells, family = binomial(link = "logit"))
+
+summary(logit_model)
+
+```
+
+## Probit
+
+```{r}
+#| echo: true
+
+# Probit Regression
+probit_model <- glm(switch ~ dist100, data = wells, family = binomial(link = "probit"))
+
+summary(probit_model)
+
+```
+
+:::
+
+## Interpretation
+
+* Logit
+
+  * Odds / Log Odds
+  
+```{r}
+#| echo: true
+
+exp(logit_model$coef)
+```
+
+* Probit
+
+  * Z-Score (untransformed) / Probability (transformed)
+  
+    * Inverse of the probit = CDF = `pnorm`
+ 
+```{r}
+#| echo: true
+
+pnorm(probit_model$coef)
+```
+
+## Odds vs Probability
+
+**Intercept = Bad well directly adjacent to good well**
+
+* Logistic Regression
+
+  * The odds of switching wells are 1.83 likely if next to a safe well. 
+  
+  * The probability of switching wells is: $\frac{odds}{1+odds} = \frac{1.83}{1+1.83} = 0.64$
+  
+* Probit Regression
+
+  * The probability of switching wells is 64%. 
+  
+***Identical results!***
+
+##
+
