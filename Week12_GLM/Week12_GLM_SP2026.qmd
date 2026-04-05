@@ -643,6 +643,59 @@ summary(binom)
 exp(binom$coef)
 ```
 
+## Review{.smaller}
+
+***Generalized Linear Models extend the interpretation of linear predictors on data that are traditionally not observed on a continuous or linear scale.***
+
+* Logistic Regression
+
+  * Binary outcome
+  * Logit link function
+  * Interpret on (log) odds scale
+
+$$
+\ln\left(\frac{P}{1-P}\right) = \beta_0 + \beta_1 x
+$$
+
+## Review{.smaller}
+
+***Generalized Linear Models extend the interpretation of linear predictors on data that are traditionally not observed on a continuous or linear scale.***
+
+* Logistic Binomial
+
+  * Presence / Absence data (trials / successes)
+  * Logit link function
+  * Interpret as probability of success
+  
+$$
+\begin{aligned}
+y_i &\sim \text{Binomial}(N_i, p_i) \\
+\text{logit}(p_i) &= \alpha + \sum_{k=1}^{K} x_{ik}\beta_k \\
+\end{aligned}
+$$
+
+## Review{.smaller}
+  
+* Poisson
+
+  * Count data
+  * Logarithmic link function
+  * Interpret as (log) rate or count
+
+$$
+\ln(\lambda) = \mathbf{X}\beta = \beta_0 + \beta_1 X_1 + \ldots + \beta_k X_k
+$$
+
+## Review
+
+* Negative Binomial
+  
+  * Generalization of Poisson to over- under-dispersed data
+
+$$
+y_i \sim \text{NegBinomial}(\mu_i, r)
+$$
+
 ## Probit Regression
 
 **Normally Distributed Latent Data**
@@ -735,7 +788,7 @@ pnorm(probit_model$coef)
 
 ## Odds vs Probability
 
-**Intercept = Bad well directly adjacent to good well**
+**Intercept = A bad well is directly adjacent to good well**
 
 * Logistic Regression
 
@@ -749,5 +802,373 @@ pnorm(probit_model$coef)
   
 ***Identical results!***
 
+## Unordered Categorical Regression
+
+Both ***logistic*** and ***probit*** regression can be extended to multiple categories. AKA - Multinomial Regression.
+
+```{r}
+#| echo: true
+
+library(foreign)
+library(nnet)
+ml <- read.dta("https://stats.idre.ucla.edu/stat/data/hsbdemo.dta")
+head(ml)
+```
+
 ##
+
+Entering high school students make program choices among general program, vocational program and academic program. Their choice might be modeled using their writing score and their social economic status.
+
+```{r}
+#| echo: true
+
+with(ml, table(ses, prog))
+```
+
+```{r}
+#| echo: true
+
+ml$prog2 <- relevel(ml$prog, ref = "academic")
+test <- multinom(prog2 ~ ses + write, data = ml)
+```
+
+## {.smaller}
+
+```{r}
+#| echo: true
+
+summary(test)
+```
+
+## {.smaller}
+
+* A one-unit increase in the variable write is associated with the decrease in the log odds of being in general program vs. academic program in the amount of .058 .
+
+* A one-unit increase in the variable write is associated with the decrease in the log odds of being in vocation program vs. academic program. in the amount of .1136 .
+
+* The log odds of being in general program vs. in academic program will decrease by 1.163 if moving from ses="low" to ses="high".
+ 
+* The log odds of being in general program vs. in academic program will decrease by 0.533 if moving from ses="low"to ses="middle", although this coefficient is not significant.
+
+$$
+ln\left(\frac{P(prog=general)}{P(prog=academic)}\right) = b_{10} + b_{11}(ses=2) + b_{12}(ses=3) + b_{13}write
+$$
+
+## {.smaller}
+
+* The log odds of being in vocation program vs. in academic program will decrease by 0.983 if moving from ses="low" to ses="high".
+
+* The log odds of being in vocation program vs. in academic program will increase by 0.291 if moving from ses="low" to ses="middle", although this coefficient is not significant.
+ 
+$$
+ln\left(\frac{P(prog=vocation)}{P(prog=academic)}\right) = b_{20} + b_{21}(ses=2) + b_{22}(ses=3) + b_{23}write
+$$
+
+##
+
+We can still interpret these on the raw scale. Instead of *odds*, the usage of multiple categories here predicates we use the term ***relative risk***. It can be thought of in the same way as odds. 
+
+```{r}
+#| echo: true
+
+exp(coef(test))
+```
+
+##
+
+You can also use predicted probabilities to help you understand the model. You can calculate predicted probabilities for each of our outcome levels using the fitted function. We can start by generating the predicted probabilities for the observations in our dataset and viewing the first few rows.
+
+```{r}
+#| echo: true
+
+head(pp <- fitted(test))
+```
+
+* Per row, given the writing score and SES, what is the probability of being in X program?
+
+## {.smaller}
+
+Another way to understand the model using the predicted probabilities is to look at the averaged predicted probabilities for different values of the continuous predictor variable write within each level of ses.
+
+```{r}
+#| echo: true
+
+dwrite <- data.frame(ses = rep(c("low", "middle", "high"), each = 41), write = rep(c(30:70),
+    3))
+
+## store the predicted probabilities for each value of ses and write
+pp.write <- cbind(dwrite, predict(test, newdata = dwrite, type = "probs", se = TRUE))
+
+## calculate the mean probabilities within each level of ses
+by(pp.write[, 3:5], pp.write$ses, colMeans)
+```
+
+##
+
+```{r}
+#| echo: true
+
+library(reshape2)
+## melt data set to long for ggplot2
+lpp <- melt(pp.write, id.vars = c("ses", "write"), value.name = "probability")
+head(lpp)  # view first few rows
+```
+
+##
+
+```{r}
+#| echo: true
+
+ggplot(lpp, aes(x = write, y = probability, colour = ses)) + geom_line() + facet_grid(variable ~
+    ., scales = "free")
+```
+
+## Ordered Categorical Regression {.smaller}
+
+* The interpretation of ordered categorical data can be thought of as latent variables whereby a cutpoint or threshold signifies where an individual moves from category 1 to category 2, 3, etc.
+
+$$
+Y = 
+\begin{cases} 
+1 & \text{if } -\infty < Y^* \leq \tau_1 \\
+2 & \text{if } \tau_1 < Y^* \leq \tau_2 \\
+\vdots & \vdots \\
+K & \text{if } \tau_{K-1} < Y^* \leq \infty 
+\end{cases}
+$$
+
+##
+
+```{r}
+library(tidyverse)
+
+# Simulate a latent continuous variable
+set.seed(42)
+n <- 10000
+latent <- rnorm(n, mean = 0, sd = 1)
+
+# Define 4 cutpoints (creating 5 categories)
+cuts <- c(-1.5, -0.5, 0.5, 1.5)
+
+# Assign observed ordinal category based on cutpoints
+y <- cut(latent, breaks = c(-Inf, cuts, Inf), labels = 1:5)
+
+df <- data.frame(latent = latent, y = factor(y))
+```
+
+```{r}
+# --- PDF plot (latent variable with cutpoints shaded) ---
+ggplot(df, aes(x = latent, fill = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 100, alpha = 0.8) +
+  geom_vline(xintercept = cuts, linetype = "dashed", color = "black", linewidth = 0.8) +
+  scale_fill_brewer(palette = "RdYlBu", name = "Category") +
+  labs(
+    title    = "Latent Variable Approach: Ordered Logit",
+    subtitle = "Observed categories defined by cutpoints on latent continuum",
+    x        = "Latent Variable (Y*)",
+    y        = "Density"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(
+    plot.title    = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, color = "grey40")
+  )
+
+# --- CDF plot (cumulative probabilities at each cutpoint) ---
+cdf_df <- data.frame(
+  x    = seq(-4, 4, length.out = 1000),
+  cdf  = plogis(seq(-4, 4, length.out = 1000))
+)
+
+cut_df <- data.frame(
+  cut   = cuts,
+  prob  = plogis(cuts),
+  label = paste0("alpha[", 1:4, "]")
+)
+```
+
+##
+
+```{r}
+ggplot(cdf_df, aes(x = x, y = cdf)) +
+  geom_line(linewidth = 1.2, color = "steelblue") +
+  geom_vline(xintercept = cuts, linetype = "dashed", color = "black", linewidth = 0.7) +
+  geom_point(data = cut_df, aes(x = cut, y = prob), size = 4, color = "red") +
+  geom_text(data = cut_df, aes(x = cut, y = prob, label = label),
+            parse = TRUE, vjust = -1, hjust = -0.2, size = 4) +
+  labs(
+    title    = "CDF of Logistic Distribution with Cutpoints",
+    subtitle = "Red points show cumulative probabilities at each threshold",
+    x        = "Latent Variable (Y*)",
+    y        = "Cumulative Probability"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(
+    plot.title    = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, color = "grey40")
+  )
+```
+
+## Example
+
+A study looks at factors that influence the decision of whether to apply to graduate school. College juniors are asked if they are unlikely, somewhat likely, or very likely to apply to graduate school. Hence, our outcome variable has three ordered categories. Data on parental educational status, whether the undergraduate institution is public or private, and current GPA is also collected. 
+
+```{r}
+#| echo: true
+
+dat <- read.dta("https://stats.idre.ucla.edu/stat/data/ologit.dta")
+head(dat)
+```
+
+## Code
+
+```{r}
+#| echo: true
+
+library(MASS)
+
+## fit ordered logit model and store results 'm'
+m <- polr(apply ~ pared + public + gpa, data = dat, Hess=TRUE)
+
+## view a summary of the model
+summary(m)
+```
+
+## Interpretation{.smaller}
+
+$$
+\begin{eqnarray}
+logit (\hat{P}(Y \le 1)) & = & 2.20 – 1.05*PARED – (-0.06)*PUBLIC – 0.616*GPA \\
+logit (\hat{P}(Y \le 2)) & = & 4.30 – 1.05*PARED – (-0.06)*PUBLIC – 0.616*GPA
+\end{eqnarray}
+$$
+
+* Coefficient interpretation remains the same (odds/log odss/probabilities)
+
+* Intercepts are cut points on the latent scale
+
+* Odds Ratios
+
+```{r}
+#| echo: true
+
+exp(coef(m))
+```
+
+## Interpreting Odds Ratios
+
+**Parental Education**
+
+1.  For students whose parents did attend college, the odds of being more likely (i.e., very or somewhat likely versus unlikely) to apply is 2.85 times that of students whose parents did not go to college, holding constant all other variables.
+
+2.  For students whose parents did not attend college, the odds of being less likely to apply (i.e., unlikely versus somewhat or very likely) is 2.85 times that of students whose parents did go to college, holding constant all other variables.
+
+## Interpreting Odds Ratios {.smaller}
+
+**School Type**
+
+1. For students in public school, the odds of being more likely (i.e., very or somewhat likely versus unlikely) to apply is 5.71% lower [i.e., (1 -0.943) x 100%] than private school students, holding constant all other variables.
+    * For students in private school, the odds of being more likely to apply is 1.06 times [i.e., 1/0.943] that of public school students, holding constant all other variables (positive odds ratio).
+  
+2. For students in private school, the odds of being less likely to apply (i.e., unlikely versus somewhat or very likely) is 5.71% lower than public school students, holding constant all other variables.
+    * For students in public school, the odds of being less likely to apply is 1.06 times that of private school students, holding constant all other variables (positive odds ratio).
+    
+## Interpreting Odds Ratios
+
+**GPA**
+
+1.  For every one unit increase in student’s GPA the odds of being more likely to apply (very or somewhat likely versus unlikely) is multiplied 1.85 times (i.e., increases 85%), holding constant all other variables.
+
+2.  For every one unit decrease in student’s GPA the odds of being less likely to apply (unlikely versus somewhat or very likely) is multiplied 1.85 times, holding constant all other variables.
+
+## Interpretation {.smaller}
+
+Remember before, we can interpret on a probability scale...
+
+```{r}
+#| echo: true
+
+newdat <- data.frame(
+  pared = rep(0:1, 200),
+  public = rep(0:1, each = 200),
+  gpa = rep(seq(from = 1.9, to = 4, length.out = 100), 4))
+
+newdat <- cbind(newdat, predict(m, newdat, type = "probs"))
+
+##show first few rows
+head(newdat)
+```
+
+```{r}
+#| echo: true
+
+lnewdat <- melt(newdat, id.vars = c("pared", "public", "gpa"),
+  variable.name = "Level", value.name="Probability")
+## view first few rows
+head(lnewdat)
+```
+
+##
+
+```{r}
+#| echo: true
+
+ggplot(lnewdat, aes(x = gpa, y = Probability, colour = Level)) +
+  geom_line() + facet_grid(pared ~ public, labeller="label_both")
+```
+
+## Extra {.smaller}
+
+A simple Cox Proportional Hazards model in R is fitted using the `coxph()` function from the `survival` package, typically written as `coxph(Surv(time, event) ~ covariate, data)`. It estimates the effect of covariates on survival time by assuming proportional hazards, with `summary()` providing hazard ratios (`exp(coef)`) and p-values. 
+
+```{r}
+library(survival)
+# Basic model
+fit <- coxph(Surv(time, status) ~ sex, data = lung)
+summary(fit)
+```
+
+## Interpretation
+
+```{r}
+#| echo: true
+
+exp(fit$coefficients)
+```
+
+Interpreted like an odds ratio.
+
+* > 1 risk of death increases
+
+* < 1 risk of death decreases (protective effect)
+
+* Assumes risk is unchanging over time. Problematic?
+
+
+##
+
+```{r}
+#| echo: true
+
+library(survminer)
+
+# 3. Create survival curves based on the model
+# We use survfit() to generate the data for the plot
+pred <- survfit(fit, newdata = data.frame(sex = c(1, 2)))
+```
+
+##
+
+```{r}
+#| echo: true
+
+# 4. Plot using ggsurvplot
+ggsurvplot(pred, 
+           data = lung, 
+           conf.int = TRUE,                # Add confidence intervals
+           palette = c("#E7B800", "#2E9FDF"), # Custom colors
+           legend.labs = c("Male", "Female"), # Label the legend
+           ggtheme = theme_minimal(),      # Clean ggplot2 theme
+           main = "Survival Curves by Sex (Cox Model)")
+```
 
