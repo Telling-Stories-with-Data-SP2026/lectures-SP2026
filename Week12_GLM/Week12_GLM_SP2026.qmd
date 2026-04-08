@@ -8,6 +8,7 @@ format:
     chalkboard: false # Great for drawing during stats lectures
     incremental: false # Bullet points appear one by one
     embed-resources: true
+    html-math-method: mathjax 
     highlight-style: github
 editor_options: 
   chunk_output_type: console
@@ -1172,3 +1173,377 @@ ggsurvplot(pred,
            main = "Survival Curves by Sex (Cox Model)")
 ```
 
+# tldr Regression
+
+## What is Regression?
+
+> Estimating the relationship between some outcome variable ($y$) and some independent variable ($x$).
+
+![](reg_def.png){fig-align="center"}
+
+## Basic Terms to Know
+
+* Observation(s)
+
+  * $x$ and $y$
+  
+* Predictions ($\hat{y}$)
+
+* Residuals
+  
+  * Difference observed $y$ and predicted $\hat{y}$
+  
+* Coefficients == Parameters
+
+  * Slope(s)
+  * Intercepts
+  * Other?
+
+## Linear Regression
+
+1.  The relationship between a [scalar]{.underline} response variable and a [scaler]{.underline} independent variable is linear.
+2.  The relationship between a [scalar]{.underline} response variable and some discrete independent variable where the coefficient represent the difference between group(s)
+3.  Generally, the relationship between some response variable and a [***linear combination***]{.underline} of predictors commonly referred to as $y = \beta_0 + \beta_1X_1 + \beta_2X_2 ... + \beta_KX_K$
+
+## Simple Linear Regression
+
+:::{.panel-tabset}
+
+## Interpretation {.smaller}
+
+* 1 scalar response $y$ and scalar predictor $x$
+* Must adhere to all parametric assumptions
+* **Intercept:** The predicted value of $y$ when $x = 0$
+* **Coefficients:** The unit change in $y$ when $x$ changes by 1 unit.
+* **$R^2$:** Proportion of variability in $y$ explained by $x$
+* **P-Values:** Always assume the [null]{.underline} is no effect.
+
+## Code
+
+```{r}
+#| echo: true
+
+summary(lm(bill_len ~ flipper_len, data = penguins))
+```
+
+
+:::
+
+## Multiple Linear Regression{.smaller}
+
+:::{.panel-tabset}
+
+## Interpretation
+
+*  2+ predictors ($\mathbf{X}$)
+  * 2+ coefficients or slopes
+  
+* Coefficient interpretations
+  * Hold 'extraneous' values constant (set equal to average or 0)
+  
+* Intercept interpretations
+  * **If continuous:** Value of $y$ when $\mathbf{X}$ is held constant or at 0.
+  * **If discrete:** Value of $y$ at reference value(s).
+
+## Code
+
+```{r}
+#| echo: true
+
+summary(lm(bill_len ~ flipper_len + body_mass + species + sex, data = penguins))
+```
+
+:::
+
+## Binary Logistic Regression
+
+:::{.panel-tabset}
+
+## Interpretation
+
+* Traditionally the ***logit*** link function 
+
+* Results are on log odds scale
+
+* To interpret on *raw* scale, must exponentiate the coefficient $e^{\beta_{k}}$
+  * $>$ 1 = increase in odds
+  * < 1 = decrease in odds
+
+* Useful in binary classification problems  
+
+## Code
+
+```{r}
+#| echo: true
+
+fit <- glm(as.factor(type) ~ bp + bmi + glu, data = MASS::Pima.tr, family = binomial(link = "logit"))
+summary(fit)
+exp(fit$coefficients)
+
+```
+
+
+:::
+
+## Probit Regression{.smaller}
+
+:::{.panel-tabset}
+
+## Interpretation
+
+* **probit** link function instead of **logit**
+  * Underlying data is related to the normal distribution instead of the logistic distribution
+
+* Use when you have [theoretical]{.underline} reasoning to assume a normal distribution
+
+* Easy to interpret, more complicated to fit
+
+* Results often similar to *logit*
+
+* Model scale is a z-score. 
+  * Must take the inverse `pnorm()` to interpret on probablity scale.
+  * Using `pnorm` alone is not intuitive outside of the intercept (baseline probability). If we want to understand the probablity of some single effect we must estimate [marginal]{.underline} effects. 
+
+## Code 1
+
+```{r}
+#| echo: true
+
+fit2 <- glm(as.factor(type) ~ bp + bmi + glu, data = MASS::Pima.tr, family = binomial(link = "probit"))
+summary(fit2)
+
+```
+
+
+## Code 2
+
+```{r}
+#| echo: true
+library(margins)
+summary(margins(fit2))
+```
+
+:::
+
+## Poisson Regression
+
+:::{.panel-tabset}
+
+## Interpretation
+
+* Count data
+* Mean = variance
+  * Assumes variance is homogenous
+* Poisson distribution
+* Log link
+* Model scale = log count or rate
+  * Must exponentiate to get incidence rate ratio (IRR) or rate increase/decrease in count
+
+## Code 1
+
+```{r}
+#| echo: true
+
+library(AER)
+data("Affairs")
+fit3 <- glm(affairs ~ gender + yearsmarried + children, data = Affairs, family = poisson)
+summary(fit3)
+```
+
+## Code 2
+
+```{r}
+#| echo: true
+
+exp(fit3$coefficients)
+```
+
+
+:::
+
+## Negative Binomial Regression
+
+:::{.panel-tabset}
+
+## Interpretation
+
+* Count data
+* Generalization of Poisson to over/under dispersed data
+* Interpretation is same as Poisson
+
+## Code 1
+
+```{r}
+#| echo: true
+
+library(MASS)
+
+fit4 <- glm.nb(affairs ~ gender + yearsmarried + children, data = Affairs)
+summary(fit4)
+```
+
+## Code 2
+
+```{r}
+#| echo: true
+
+exp(fit4$coefficients)
+
+#lowest = best
+fit3$aic
+fit4$aic
+```
+
+
+:::
+
+## Logistic Binomial Regression
+
+:::{.panel-tabset}
+
+## Interpretation
+
+* Count data
+
+  * number successes (or failures) against total # of trials
+  * Binary logistic regression is a special case where trials = 1
+  
+* Estimating probability of success / failure
+
+* The $y$ variable is a matrix of successes/failures and total - successes/failures 
+
+## Code 1
+
+```{r}
+#| echo: true
+
+## successes = ndead, failures = ntotal - ndead
+model <- glm(cbind(ndead, ntotal - ndead) ~ dose + sex, 
+             data = doBy::budworm, 
+             family = binomial)
+summary(model)
+```
+
+## Code 2
+
+```{r}
+#| echo: true
+
+exp(model$coefficients)
+```
+
+
+:::
+
+## Multinomial Regression
+
+:::{.panel-tabset}
+
+## Interpretation
+
+* $y$ variable is many categories
+
+* Interpretation is same as binary logistic regression
+
+* Can be logit or probit link function
+
+* Multi-category classification
+
+* Interpret in relation to reference category
+
+## Code 1 
+
+```{r}
+#| echo: true
+
+library(nnet)
+multi <- multinom(Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris)
+```
+
+## Code 2
+
+```{r}
+#| echo: true
+
+summary(multi)
+```
+
+
+## Code 3
+
+```{r}
+#| echo: true
+
+exp(coef(multi))
+```
+
+:::
+
+## Ordered Categorical Regression{.smaller}
+
+:::{.panel-tabset}
+
+## Interpretation
+
+* Ordered $y$ variable
+
+* Logit or probit
+  * (Log) odds or (z-score) probability
+
+* **Coefficient interpretation:** A one unit change in a predictor represents the change in odds of being in a higher category vs lower category
+
+* **Intercept interpretation:** Threshold parameter. The odds or probablity of being in one category vs the next. 
+
+  * When using ordered regression in a scenario where your predictor is continuous (i.e., age), can be representative of threshold where we move from one stage to next. 
+  
+* Useful in classification / regression problems
+
+## Code 1
+
+```{r}
+#| echo: true
+
+dat <- ordinal::wine
+dat$rating <- ordered(dat$rating)
+levels(dat$rating)
+
+library(MASS)
+
+ord <- polr(rating ~ temp + contact, data = dat)
+
+summary(ord)
+```
+
+## Code 2
+
+```{r}
+#| echo: true
+
+# The odds of unit change in a predictor leading to an increase in category
+exp(ord$coefficients)
+
+# The odds of being in X category
+exp(ord$zeta)
+```
+
+:::
+
+## Remember
+
+* Always fit more than 1 regression model
+
+* Model comparison is an art
+
+  * In AIC, lower is best.
+  * $R^2$ talks about variation but is not useful in comparison
+
+* Useful in prediction / classification 
+
+* Prediction intervals are **always** larger than confidence intervals
+
+* All regression has a tendency to ***regress to mean***
+  * It is important we collect appropriate data. 
+  
+## 
+
+![](joke.png){fig-align="center"}
