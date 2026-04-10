@@ -1118,61 +1118,6 @@ ggplot(lnewdat, aes(x = gpa, y = Probability, colour = Level)) +
   geom_line() + facet_grid(pared ~ public, labeller="label_both")
 ```
 
-## Extra {.smaller}
-
-A simple Cox Proportional Hazards model in R is fitted using the `coxph()` function from the `survival` package, typically written as `coxph(Surv(time, event) ~ covariate, data)`. It estimates the effect of covariates on survival time by assuming proportional hazards, with `summary()` providing hazard ratios (`exp(coef)`) and p-values. 
-
-```{r}
-library(survival)
-# Basic model
-fit <- coxph(Surv(time, status) ~ sex, data = lung)
-summary(fit)
-```
-
-## Interpretation
-
-```{r}
-#| echo: true
-
-exp(fit$coefficients)
-```
-
-Interpreted like an odds ratio.
-
-* > 1 risk of death increases
-
-* < 1 risk of death decreases (protective effect)
-
-* Assumes risk is unchanging over time. Problematic?
-
-
-##
-
-```{r}
-#| echo: true
-
-library(survminer)
-
-# 3. Create survival curves based on the model
-# We use survfit() to generate the data for the plot
-pred <- survfit(fit, newdata = data.frame(sex = c(1, 2)))
-```
-
-##
-
-```{r}
-#| echo: true
-
-# 4. Plot using ggsurvplot
-ggsurvplot(pred, 
-           data = lung, 
-           conf.int = TRUE,                # Add confidence intervals
-           palette = c("#E7B800", "#2E9FDF"), # Custom colors
-           legend.labs = c("Male", "Female"), # Label the legend
-           ggtheme = theme_minimal(),      # Clean ggplot2 theme
-           main = "Survival Curves by Sex (Cox Model)")
-```
-
 # tldr Regression
 
 ## What is Regression?
@@ -1525,6 +1470,170 @@ exp(ord$coefficients)
 # The odds of being in X category
 exp(ord$zeta)
 ```
+
+:::
+
+## Extra {.smaller}
+
+A simple Cox Proportional Hazards model in R is fitted using the `coxph()` function from the `survival` package, typically written as `coxph(Surv(time, event) ~ covariate, data)`. It estimates the effect of covariates on survival time by assuming proportional hazards, with `summary()` providing hazard ratios (`exp(coef)`) and p-values. 
+
+```{r}
+library(survival)
+# Basic model
+fit <- coxph(Surv(time, status) ~ sex, data = lung)
+summary(fit)
+```
+
+## Interpretation
+
+```{r}
+#| echo: true
+
+exp(fit$coefficients)
+```
+
+Interpreted like an odds ratio.
+
+* > 1 risk of death increases
+
+* < 1 risk of death decreases (protective effect)
+
+* Assumes risk is unchanging over time. Problematic?
+
+
+##
+
+```{r}
+#| echo: true
+
+library(survminer)
+
+# 3. Create survival curves based on the model
+# We use survfit() to generate the data for the plot
+pred <- survfit(fit, newdata = data.frame(sex = c(1, 2)))
+```
+
+##
+
+```{r}
+#| echo: true
+
+# 4. Plot using ggsurvplot
+ggsurvplot(pred, 
+           data = lung, 
+           conf.int = TRUE,                # Add confidence intervals
+           palette = c("#E7B800", "#2E9FDF"), # Custom colors
+           legend.labs = c("Male", "Female"), # Label the legend
+           ggtheme = theme_minimal(),      # Clean ggplot2 theme
+           main = "Survival Curves by Sex (Cox Model)")
+```
+
+# Complicating Things
+
+## Multilevel or Hierarchical Models
+
+* Data are structured into groups or clusters [nested]
+  * **Varying slopes:** different relationships between variables aross groups
+  * **Varying intercepts:** Different group baselines
+  
+![](mlm.png){fig-align="center"}
+
+## Non-Linear Models{.smaller}
+
+* Remember, the goal of regression is simply predicting *y*
+  * Finding the best fit line
+  * Depending on your problem, your [parameters]{.underline} may be interpretable.
+* The regression equation is simply a ***mean!*** [or similar parameter of interest]
+
+##
+  
+:::{.panel-tabset}
+
+## Example
+
+```{r}
+#| echo: true
+
+# Example data: Height of a plant over time
+days <- c(1, 5, 10, 20, 30, 40, 50, 60)
+height <- c(2, 8, 15, 35, 55, 65, 72, 75)
+plot(days, height)
+
+```
+
+## Code
+
+```{r}
+#| echo: true
+
+# a and b are the parameters we want R to find
+fit <- nls(height ~ (a * days) / (b + days), 
+           start = list(a = 80, b = 25))
+
+summary(fit)
+
+```
+
+## Verification
+
+```{r}
+#| echo: true
+
+# Plot the original points
+plot(days, height)
+
+# Add the fitted curve
+lines(days, predict(fit), col="red", lwd=2)
+
+```
+
+## Check
+
+```{r}
+#| echo: true
+
+plot(resid(fit))
+abline(h = 0, lty = 2)
+```
+
+:::
+
+## Non-Parametric Models
+
+* **Locally Weighted Regression [LOESS]**: Flexible line fitting
+
+![](loess.gif){fig-align="center"}
+
+## Non-Parametric Models
+
+* **Splines:** sum of many localized pieces
+  * Areas of change are called *knots*
+
+![](splines.png){fig-align="center"}
+
+## Gaussian Process
+
+* A probability distribution over possible functions.
+
+* Instead of finding one "best-fit" line, it predicts a range of likely functions that pass near observed data points, providing both predictions and uncertainty estimates. 
+
+![](gp.gif){fig-align="center"}
+
+## Mind blown{.smaller}
+
+:::{.panel-tabset}
+
+## Linear Regression
+
+![](linear_nn.png){width=80%}
+
+## Logistic Regression
+
+![](logistic_nn.png){width=40%}
+
+## Neural Network
+
+![](nn.png){width=60%}
 
 :::
 
