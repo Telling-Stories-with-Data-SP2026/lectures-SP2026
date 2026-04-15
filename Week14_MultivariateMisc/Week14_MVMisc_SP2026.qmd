@@ -572,3 +572,494 @@ fviz_ellipses(res.mca, c("Vomiting", "Fever"),
 :::
 
 # Factor Analysis of Mixed Data [FAMD]
+
+##
+
+* Continuous and ordinal data
+  *  Combines MCA + PCA
+  
+```{r}
+#| echo: true
+
+library("FactoMineR")
+library("factoextra")
+
+data(wine)
+df <- wine[,c(1,2, 16, 22, 29, 28, 30,31)]
+head(df[, 1:7], 4)
+```
+
+## 
+
+`FAMD (base, ncp = 5, sup.var = NULL, ind.sup = NULL, graph = TRUE)`
+
+* base : a data frame with n rows (individuals) and p columns (variables).
+
+* ncp: the number of dimensions kept in the results (by default 5)
+
+* sup.var: a vector indicating the indexes of the supplementary variables.
+
+* ind.sup: a vector indicating the indexes of the supplementary individuals.
+
+* graph : a logical value. If TRUE a graph is displayed.
+
+##
+
+```{r}
+#| echo: true
+
+library(FactoMineR)
+res.famd <- FAMD(df, graph = FALSE)
+print(res.famd)
+```
+
+## 
+
+* `get_eigenvalue(res.famd)`: Extract the eigenvalues/variances retained by each dimension (axis).
+
+* `fviz_eig(res.famd)`: Visualize the eigenvalues/variances.
+
+* `get_famd_ind(res.famd)`: Extract the results for individuals.
+
+* `get_famd_var(res.famd)`: Extract the results for quantitative and qualitative variables.
+
+* `fviz_famd_ind`(res.famd), `fviz_famd_var(res.famd)`: Visualize the results for individuals and variables, respectively.
+
+## Eigenvalues
+
+:::{.panel-tabset}
+
+## Numeric
+
+```{r}
+#| echo: true
+
+eig.val <- get_eigenvalue(res.famd)
+head(eig.val)
+```
+
+## Plot
+
+```{r}
+#| echo: true
+
+fviz_screeplot(res.famd)
+```
+
+:::
+
+## Variable Information
+
+```{r}
+#| echo: true
+
+var <- get_famd_var(res.famd)
+var
+```
+
+:::{.panel-tabset}
+
+## coord
+
+```{r}
+#| echo: true
+
+# Coordinates of variables
+head(var$coord)
+
+```
+
+## cos2
+
+```{r}
+#| echo: true
+
+# Cos2: quality of representation on the factore map
+head(var$cos2)
+```
+
+## contrib
+
+```{r}
+#| echo: true
+
+# Contributions to the  dimensions
+head(var$contrib)
+```
+
+:::
+
+## Variable Information
+
+:::{.panel-tabset}
+
+## Variable Plot
+
+```{r}
+#| echo: true
+
+# Plot of variables
+fviz_famd_var(res.famd, repel = TRUE)
+
+```
+
+## Dim 1
+
+```{r}
+#| echo: true
+
+# Contribution to the first dimension
+fviz_contrib(res.famd, "var", axes = 1)
+```
+
+## Dim 2
+
+```{r}
+#| echo: true
+
+# Contribution to the second dimension
+fviz_contrib(res.famd, "var", axes = 2)
+```
+
+:::
+
+## Quantitative Variables Only
+
+```{r}
+#| echo: true
+
+quanti.var <- get_famd_var(res.famd, "quanti.var")
+quanti.var 
+```
+
+##
+
+```{r}
+#| echo: true
+
+fviz_famd_var(res.famd, "quanti.var", repel = TRUE,
+              col.var = "black")
+```
+
+## Qualitative Variables Only
+
+```{r}
+#| echo: true
+
+quali.var <- get_famd_var(res.famd, "quali.var")
+quali.var 
+```
+
+##
+
+```{r}
+#| echo: true
+
+fviz_famd_var(res.famd, "quali.var", col.var = "contrib", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07")
+             )
+```
+
+## Individuals{.smaller}
+
+:::{.panel-tabset}
+
+## A
+
+```{r}
+#| echo: true
+
+fviz_mfa_ind(res.famd, 
+             habillage = "Label", # color by groups 
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, ellipse.type = "confidence", 
+             repel = TRUE, # Avoid text overlapping
+             geom = "point"
+             ) 
+```
+
+## B
+
+```{r}
+#| echo: true
+
+fviz_ellipses(res.famd, c("Label", "Soil"), repel = TRUE)
+```
+
+:::
+
+# Cluster Analysis
+
+* **What is it?**
+
+    * Unsupervised Learning Technique
+    * No predefined classes or groups
+    * No cross-validation [resampling]
+    
+* **Goal**
+
+    * ***Maximize*** inter-cluster difference
+    * ***Minimize*** intra-cluster distance
+    
+[**Interpretative Technique only!**]{.underline}
+
+## What is cluster analysis?
+
+**Typical Applications**
+
+* Stand-alone tool for data distribution
+* Preprocessing step for other algorithms
+
+![](cluster1.png)
+
+## Order of Operations{.smaller}
+
+1.  Formulate a problem
+2.  Select a clustering algorithm
+    * Different algorithms, different results
+3.  Decide the number of clusters
+    * Computer-decided or user-decided
+4.  Choose what influences the clusters
+    * Which traits do you use?
+5.  Select a distance measure
+    * e.g., euclidean, manhattan, gower
+6.  Assess the validity of your clustering
+
+## Clusters can be ambiguous{data-background-color="white"}
+
+![](cluster2.png)
+
+## What makes a good cluster?
+
+* High-Quality Clusters:
+    * Small within-cluster variation (“high intra-class similarity”)
+    * Large between-cluster variation (“low inter-class similarity”)
+    
+* Keep in mind:
+    * No variance-covariance matrix[different from PCA]
+    * Based on distance (similarity or dissimilarity) measures
+    * Must standardize your data
+
+## Types of Clustering
+
+* Partitional Clustering
+    * Non-overlapping clusters
+    * **k-means** cluster analysis[example]
+    * Pre-defined number of clusters
+    
+* Hierarchical Clustering
+    * Nested clusters 
+    * Organized as a hierarchical tree (dendrogram)
+    * No pre-defined idea of how many terminal clusters (leaves)
+    
+## Partitional Clustering
+
+General Idea:
+
+0.  Standardize data
+1.  Specify k clusters
+2.  Randomly select k points as centroids
+3.  Calculate distance: centroids and all other points
+4.  Create clusters
+5.  Update centroid as the middle of each cluster
+6.  Repeat until the centroids do not change
+
+##
+
+![](kmean.gif)
+
+## k-means clustering{.smaller}
+
+**First!**
+
+    * Eliminate outliers
+    * Standardize data
+
+* *k*: number of clusters
+* Each cluster has a centroid as the mean
+* Continuous data only
+
+![](kmeans.png)
+
+## {.smaller}
+
+```{r}
+#| echo: true
+
+library(archdata)
+data("DartPoints")
+names(DartPoints)
+```
+
+* B.Width – basal width
+* J.Width – juncture width
+* H.Length – hilt length
+* Blade.Sh – blade shape
+* Base.Sh – base shape
+* Should.Sh – shoulder shape
+* Should.Or – shoulder orientation
+* Haft.Sh – haft shape
+* Haft.Or – haft orientation
+
+## Remember, continuous only
+
+```{r}
+#| echo: true
+
+dart_n <- DartPoints[,c(1,5:11)] |> na.omit()
+summary(dart_n)
+```
+
+## Remove Outliers
+
+```{r}
+#| echo: true
+
+dart_ns <- dart_n %>% 
+	mutate_at(names(dart_n)[-1], scale)
+pca_check <- princomp(dart_ns[-1])
+biplot(pca_check)
+dart_n <- dart_n[-44, ]  # remove row 44
+
+```
+
+## Remove Outliers
+
+```{r}
+#| echo: true
+#| message: false
+
+ggplot(dart_n) + theme_bw() + 
+  geom_point(aes(x=Length, y=Width))
+dart_n <- dart_n %>% filter(Length < 90) #remove
+
+```
+
+## Normalize the data
+
+```{r}
+#| echo: true
+
+dart_ns <-scale(dart_n[-1]) %>% data.frame()
+
+```
+
+##  Choosing Cluster Number(k)
+
+**3 main tecniques**
+
+1.  Average silhouette
+2.  Elbow method
+3.  Gap statistic
+
+`library(factoextra)` contains a function that can be used to visualize all three of these methods:
+	`help(fviz_nbclust)`
+
+## Average Silhouette
+
+Determines how well each object lies in a cluster
+
+* Choose k **with the largest silhouette**
+
+```{r}
+#| echo: true
+
+fviz_nbclust(dart_ns, FUNcluster = kmeans, method = "silhouette")
+```
+
+## Elbow Method {.smaller}
+
+Uses total within-cluster sum of square (WSS)
+
+* Find the “elbow” where total WSS marginally improves as k increases
+
+* ***This method does not provide a recommended number of clusters, instead you “eyeball it”***
+
+```{r}
+#| echo: true
+
+fviz_nbclust(dart_ns, FUNcluster = kmeans, method = "wss")
+```
+
+## Gap Statistic {.smaller}
+
+Compares total intracluster variation to that of uniformly distributed data
+
+* Choose the k with the highest gap statistic vs. lowest # of clusters
+* This method is preferred because it uses a measure that does not only consider global clustering (averages or totals)
+
+```{r}
+#| echo: true
+
+fviz_nbclust(dart_ns, FUNcluster = kmeans, method = "gap_stat")
+```
+
+## Running kmeans
+
+`kmeans(x, centers, iter.max = 10, …)`
+
+* `x`: numeric matrix or an object that can be coerced to a matrix (numeric only)
+* `center`s: either the number of clusters, say k, or a set of initial (distinct) cluster centers
+* `iter.max`: maximum number of iterations
+* `nstart`: initial random number of clusters – set higher for smaller sample sizes (recommended nstart=25)
+
+## Running kmeans
+
+```{r}
+#| echo: true
+
+set.seed(1991)
+kmeans_res <- kmeans(dart_ns, centers = 4, nstart = 25)
+print(kmeans_res)
+```
+
+## Contextualizing the Clusters
+
+```{r}
+#| echo: true
+
+dart_kmeans <- dart_n
+dart_kmeans$cluster <- factor(kmeans_res$cluster)
+summary(dart_kmeans)
+```
+
+## Inspect
+
+```{r}
+#| echo: true
+
+library(ggrepel)
+
+ggplot(dart_kmeans) + theme_bw() + 
+	geom_label_repel(aes(
+	x=Length, y=Width, 	color=cluster, label=Name), 	max.overlaps=30)
+
+```
+
+## Inspect
+
+```{r}
+#| echo: true
+
+dart_kmeans %>% 
+  group_by(Name, cluster) %>% 	summarize(count=n()) %>% 
+  ggplot() + 
+  geom_point(aes(x=Name, y=cluster, 	size=count, color=count)) + 
+  theme_bw() + 
+  labs(x="Point Type", y="Cluster") +  	theme(legend.position="none")
+
+```
+
+## Inspect
+
+**! THIS IS A PCA PLOT with the added cluster and centroid data**
+
+
+```{r}
+#| echo: true
+
+fviz_cluster(kmeans_res, data=dart_ns,
+	geom="point") + theme_bw()
+
+```
+
