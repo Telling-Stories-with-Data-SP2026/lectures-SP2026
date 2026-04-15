@@ -298,6 +298,28 @@ fviz_pca_var(pc, col.var= "contrib",
 
 * If arrows meet at right angle, not correlated.
 
+## Different Dimensions
+
+:::{.panel-tabset}
+
+## Dim 1
+
+```{r}
+#| echo: true
+
+fviz_contrib(pc, choice = "var", axes = 1, top = 15)
+```
+
+## Dim 2
+
+```{r}
+#| echo: true
+
+fviz_contrib(pc, choice = "var", axes = 2, top = 15)
+```
+
+:::
+
 ## Individual Level Information
 
 Extract information about each PC in relation to the individuals
