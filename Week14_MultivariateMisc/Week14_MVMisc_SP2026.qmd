@@ -1085,3 +1085,506 @@ fviz_cluster(kmeans_res, data=dart_ns,
 
 ```
 
+## K Mediods
+
+* **k**: number of clusters
+
+* Each cluster has a **median point**
+  * This means a single ***point*** is actually a center
+  * Different from **k means*, where the center mean could be in 'space'
+  
+* ***Categorical, Quantitative, and Mixed data***
+
+##
+
+![](k_mediod.png)
+
+## k-Mediods using Categorical Data
+
+```{r}
+#| echo: true
+
+dart_f <- DartPoints[,c(1,12:17)] %>% na.omit()
+summary(dart_f)
+```
+
+## Calculate the Dissimilarity Matrix
+
+`daisy(x, metric)`
+
+* `data`: numeric matrix or data.frame object
+* `metric`: method used for calculating dissimilarity matrix, options=c(‘euclidean’, ‘manhattan’, ‘gower’)
+
+
+```{r}
+#| echo: true
+
+# install.packages("cluster")
+
+library(cluster)
+
+gower_dis <- daisy(dart_f[-1], metric = "gower")
+
+```
+
+## Run k-Mediods
+
+`pamk(data, krange=2:10, diss, …)`
+
+* `data`: numeric or dissimilarity matrix
+* `krange`: numeric vector of k to try using silhouette width method (default is 2:10)
+* `diss`: logical if TRUE, treats data as a dissimilarity matrix
+
+##
+
+```{r}
+#| echo: true
+
+#install.packages("fpc")
+
+library(fpc)
+
+pam_fit <- pamk(gower_dis, diss = TRUE)
+pam_fit
+```
+
+## Put Clusters into Data
+
+```{r}
+#| echo: true
+
+dart_kmed <- dart_f
+
+dart_kmed$cluster <- factor(pam_fit$pamobject$clustering)
+```
+
+##
+
+:::{.panel-tabset}
+
+## Plot Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+dart_kmed %>% group_by(Name, cluster) %>% summarize(count = n()) %>% ggplot() %>% 
+geom_point(aes(x=Name, y=factor(cluster), 
+size=count, color=count)) + 
+theme_minimal() + labs(x="Point Type", y="Cluster") + 
+theme(legend.position="none", panel.grid.major=element_line())
+
+```
+
+## Plot
+
+```{r}
+#| echo: false
+#| eval: true
+
+dart_kmed %>% group_by(Name, cluster) %>% summarize(count = n()) %>% ggplot() + 
+geom_point(aes(x=Name, y=factor(cluster), 
+size=count, color=count)) + 
+theme_minimal() + labs(x="Point Type", y="Cluster") + 
+theme(legend.position="none", panel.grid.major=element_line())
+
+```
+
+:::
+
+## Limitations
+
+Partitional clustering does have issues...
+
+:::{.panel-tabset}
+
+## Size Differences
+
+![](size.png){width=50%}
+
+## Density Differences
+
+![](density.png){width=50%}
+
+## Irregular
+
+![](irregular.png){width=50%}
+
+:::
+
+## General Takeaways{.smaller}
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+***k*****-Means Clustering:**
+
+* Scale / standardize data
+* More weight for bigger clusters
+
+***k*****-Mediods Clustering:**
+
+* More robust against outliers
+* Easier interpretation based on [real]{.underline} observations
+* Accomodates mixed data
+
+
+:::
+
+:::{.column width = "50%"}
+
+**General Takeaways:**
+
+* Elbow method is not great
+* Does not provide any measure of uncertainty
+* Assumes a spherical cluster shape
+* No missing data
+
+:::
+
+::::
+
+## Hierarchical Clustering{.smaller}
+
+::::{.columns}
+
+:::{.column width = "70%"}
+
+![](dendro1.png)
+
+:::
+
+:::{.column width = "30%"}
+
+* No predefined cluster #
+* Each observation may belong to more than 1 cluster
+* Clusters *may* correspond to meaningful taxonomies
+
+:::
+
+::::
+
+## Types of Hierarchical Clutering {.smaller}
+
+* **Agglomerative** (Bottom-Up):
+  * Start with *N* clusters
+  * Merge clusters until no more are created
+  * Stops when all points are in one cluster or a goal is met
+  * Most common and efficient
+    * Good for small, tight clusters
+
+* **Divisive** (Top-Down):
+  * Start with one cluster
+  * Split clusters until each cluster contains at least one observations
+  * Stops when each point is in its own cluster or a goal is met
+  * More computationally expensive
+  * Great for global structure (can be 'more' accurate)
+  
+## {data-background-color="white"}
+
+![](types_cl.png)
+
+## Dissimilarity Comparisons: Agglomerative
+
+![](agg_diss.png){style="background-color: white; padding: 10px;"}
+
+##  Agglomerative Clustering
+
+**Pairwise Approaches**
+
+* Complete Linkage (MAX): Maximum Value
+  * Tends to produce compact clusters
+  * Outliers cause merging of close groups
+  
+![](MAX.png){style="background-color: white; padding: 10px;"}
+
+## Agglomerative Clustering
+
+**Pairwise Approaches**
+
+* Single Linkage (MIN): Minimum Value
+  * Tends towards long, loose clusters
+  
+![](MIN.png){style="background-color: white; padding: 10px;"}
+
+## Agglomerative Approaches
+
+**Pairwise Approaches**
+
+* Group Average (UPGMA): Average Value
+  * More robust and less prone to outliers
+  * Accounts for **all** data
+  
+![](upgma.png){style="background-color: white; padding: 10px;"}
+
+## Agglomerative Clustering
+
+**Centroid**
+
+* Centroid Similarity
+    * Distance between centroids
+  
+![](cent.png){style="background-color: white; padding: 10px;"}
+
+## Agglomerative Clustering
+
+**Other Approaches**
+
+* Wards Method
+  * Minimize variance in total variance of clusters
+  * **Sum of the squared error**
+  
+![](wards.png){style="background-color: white; padding: 10px;"}
+
+##
+
+![](diff.png){style="background-color: white; padding: 10px;"}
+
+## Strengths + Limitations
+
+![](limit.png){style="background-color: white; padding: 10px;"}
+
+## Further Concepts {.smaller}
+
+::::{.columns}
+
+:::{.column width = "60%"}
+
+![](clade.png)
+
+:::
+
+:::{.column width = "40%"}
+
+**Clade:** a branch, with one or more **leaves**
+
+  * Single = simplicifolius
+  * Double = bifolius
+  * Triple = trifolius
+
+**Interpretation:**
+
+  * A, B, and C are more similar to each other than D, E, or F
+  * Leaves D and E are more similar to each other than A, B, C, or F
+  * Leaf F is substantially different from all other leaves
+
+:::
+
+::::
+
+## Interpreting a Dendrogram
+
+![](dendro2.png){style="background-color: white; padding: 10px;"}
+
+##
+
+What is the relationship between states and arrests?
+
+```{r}
+#| echo: true
+
+head(USArrests)
+```
+
+## Standardize the Data
+
+```{r}
+#| echo: true
+
+arrests <- USArrests %>% na.omit() %>% slice_head(n = 25) %>% scale()
+```
+
+## Agglomerative CLustering
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+
+distances <- dist(arrests, method = "euclidean")
+
+# library(cluster)
+hc1 <- agnes(distances, diss = T, method = "average")
+```
+
+## Plot
+
+```{r}
+#| echo: true
+# library(cluster)
+pltree(hc1)
+```
+
+:::
+
+## Other Plots
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Extract cluster numbers
+hc1_grp <- cutree(hc1, k = 5)
+
+## Optional: Add back to data 
+# arrests <- cbind(arrests, cluster = hc1_grp) %>% as.data.frame()
+
+#library(factoextra)
+fviz_cluster(list(data = arrests, cluster = hc1_grp)) + labs(shape = "Cluster", labels = "Cluster", color = "Cluster", fill = "Cluster") + theme_classic()
+```
+
+## Plot
+
+```{r}
+#| echo: false
+#| eval: true
+
+# Extract cluster numbers
+hc1_grp <- cutree(hc1, k = 5)
+
+#library(factoextra)
+fviz_cluster(list(data = arrests, cluster = hc1_grp)) + labs(shape = "Cluster", labels = "Cluster", color = "Cluster", fill = "Cluster") + theme_classic()
+```
+
+:::
+
+## Divisive Clustering
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+
+distances <- dist(arrests, method = "euclidean")
+
+# library(cluster)
+hc2 <- diana(distances, diss = T)
+```
+
+## Plot
+
+```{r}
+#| echo: true
+# library(cluster)
+pltree(hc2)
+```
+
+:::
+
+## Other Plots
+
+:::{.panel-tabset}
+
+## Code
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Extract cluster numbers
+cluster_grp2 <- cutree(hc2, k = 5)
+
+## Optional: Add back to data 
+# arrests <- cbind(arrests, cluster = cluster_grp2) %>% as.data.frame()
+
+#library(factoextra)
+fviz_cluster(list(data = arrests[-5], cluster = cluster_grp2)) + labs(shape = "Cluster", labels = "Cluster", color = "Cluster", fill = "Cluster") + theme_classic()
+```
+
+## Plot
+
+```{r}
+#| echo: false
+#| eval: true
+
+# Extract cluster numbers
+cluster_grp2 <- cutree(hc2, k = 5)
+
+## Optional: Add back to data 
+# arrests <- cbind(arrests, cluster = cluster_grp2) %>% as.data.frame()
+
+#library(factoextra)
+fviz_cluster(list(data = arrests, cluster = cluster_grp2)) + labs(shape = "Cluster", labels = "Cluster", color = "Cluster", fill = "Cluster") + theme_classic()
+```
+
+:::
+
+## Comparing Dendrograms
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+**Agglomerative**
+
+```{r}
+pltree(hc1)
+```
+
+
+:::
+
+:::{.column width = "50%"}
+
+**Divisive**
+
+```{r}
+pltree(hc2)
+```
+
+:::
+
+::::
+
+## Comparing our Clusters
+
+::::{.columns}
+
+:::{.column width = "50%"}
+
+**Agglomerative**
+
+```{r}
+fviz_cluster(list(data = arrests, cluster = hc1_grp)) + labs(shape = "Cluster", labels = "Cluster", color = "Cluster", fill = "Cluster") + theme_classic()
+```
+
+
+:::
+
+:::{.column width = "50%"}
+
+**Divisive**
+
+```{r}
+fviz_cluster(list(data = arrests, cluster = cluster_grp2)) + labs(shape = "Cluster", labels = "Cluster", color = "Cluster", fill = "Cluster") + theme_classic()
+```
+
+:::
+
+::::
+
+## Hierarchical Clustering Takeaways
+
+* Different dissimilarity measures generate different results
+
+* Sensitive to noise and outliers
+
+* No missing data
+
+* Data must be standardized
+
+## Summary Cluster Analysis
+
+* Unsupervised
+* **Not** meant for prediction
+* Two types: partitional and hierarchical
+* Different algorithms = Different results!
