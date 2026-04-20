@@ -1,0 +1,261 @@
+---
+title: "Linear Discriminant Analysis + Decision Trees"
+format: 
+  revealjs:
+    theme: serif
+    slide-number: true
+    show-slide-number: all
+    chalkboard: false # Great for drawing during stats lectures
+    incremental: false # Bullet points appear one by one
+    embed-resources: true
+    html-math-method: mathjax 
+    highlight-style: github
+editor_options: 
+  chunk_output_type: console
+---
+
+# Linear Discriminant Analysis
+
+**Classification Technique**
+
+## What is it?
+
+* Multivariate [continuous] predictors [related to PCA] to many categories.
+
+* 2 categories == Linear Discriminant Analysis OR
+
+* 3+ categories == Canonical Variates Analysis
+
+* Generalized Term == Discriminant Function Analysis
+
+* Closely related to **linear regression** whereby one finds a *linear* coombination of features to separate classes.
+
+## Goals
+
+1.  ***Maximize*** between group differences.
+2.  ***Describe*** group separation.
+3.  ***Classify*** unknown cases into a known sample.
+
+## What is it?
+
+![](lda1.png){fig-align="center"}
+
+## What is it?
+
+![](lda2.png){fig-align="center"}
+
+## What is it?
+
+![](lda3.png){fig-align="center"}
+![](lda4.png){fig-align="center"}
+
+## What is it?
+
+* Each **linear seperator** is simply just a function of a line. 
+
+$$
+Z = b + m1(x1) + m2(x2)
+$$
+
+* This is a **discriminant function**.
+  * Function number =  1 - # of groups
+
+* We use the value of $z$ to compare to the cutoff point - AKA decide which group one is in.
+
+* Comparison is made with a multivariate distance - **Mahalanobis distance** $D^2$
+
+##
+
+$$
+GOL(187)*0.11 + XCB(142)*0.107 – 17.019 = 0.286
+$$
+
+##
+
+![](lda5.png){fig-align="center"}
+
+## Mahalanobis Distance
+
+* Multivariate distance metric
+  * A euclidean distance in 3D using the covariance matrix.
+
+* Adjusts for correlated data. 
+  * Similar to PCA EXCEPT we maximize between group variance NOT total data variance. 
+  
+![](mahal1.png){fig-align="center"}
+
+##
+
+![](mahal2.png){fig-align="center"}
+
+## Assumptions {.smaller}
+
+***One output variable (group/factor) and many continuous input variables***
+
+1.  Each case is from a mutually exclusive group
+2.  Input variables are not collinear
+3.  Homogeneity of variance between output groups
+4.  Multivariate normally distributed samples
+5.  Sufficient sample size: The smallest sample size should be 3x the number of input variables
+    * Ex: 20 input/predictor variables is n≥60, per group 
+
+## How an LDA works
+
+* The Mahalanobis D2 examines the squared distance from an individual case to the group centroid
+* An individual will be classified into the group with the lowest D2
+* An individual will be forced to classify into a group, even if the actual group is not in the reference data or if it is far from all centroids
+    * Reference data is important!
+* Data are always scaled before being used!
+
+## DFA vs. Logistic
+
+* Can discriminate between >2 groups
+* Performs much better when groups are well-separated
+* More stable for small sample sizes
+
+## DFA in R
+
+```{r}
+#| echo: true
+#| message: false
+
+library(MASS) #LDA
+library(tidyverse)
+library(magrittr)
+
+data("iris")
+iris2 <- iris
+names(iris2) <- c("sl","sw","pl","pw","species")
+iris2 %<>% mutate_at(names(iris2)[-5], scale)  # don’t forget to scale!
+
+```
+
+##
+
+```{r}
+#| echo: true
+
+iris_lda <- lda(species ~., data=iris2)  # what does ~. mean?
+iris_lda
+
+```
+
+## Remember, DFA is Predictive!
+
+```{r}
+#| echo: true
+
+# pred <- predict(iris_lda, newdata = ...)
+pred <- predict(iris_lda)
+names(pred)
+```
+
+* ***Class***: class or group each row is classified into.
+
+* ***Posterior***: Posterior probablity of belonging to each group
+
+* **x** is values of each discrimnant score in standardized space.
+
+##
+
+```{r}
+#| echo: true
+
+head(pred$class)
+
+head(pred$posterior)
+
+head(pred$x)
+```
+
+
+##
+
+```{r}
+#| echo: true
+
+plot(iris_lda)
+
+```
+
+##
+
+```{r}
+#| echo: true
+
+all_iris <- cbind(pred$x, iris2)
+
+p <- ggplot(all_iris, aes(x=LD1, y=LD2)) + 	theme_bw() + 	geom_point(aes(color=species), 	size=3) + 	
+	stat_ellipse(
+	aes(linetype=species)) + 	
+	labs(x="CV Score 1 (99%)", 
+	y="CV Score 2 (0.8%)", 	color="Species", lty="Species")
+
+```
+
+##
+
+```{r}
+#| echo: true
+
+p
+```
+
+## Add Centroids
+
+```{r}
+#| echo: true
+
+# Calculate centroids:
+ld1 <- pred$x[,1] 
+ld2 <- pred$x[,2]
+
+cent <- data.frame(matrix(nrow=3, ncol=3))
+names(cent) <- c("species","LD1","LD2")
+specs <- as.character(unique(iris2$species))
+
+for(s in 1:3) {  
+	cent[s, "species"] <- specs[s]  
+	cent[s, "LD1"] <-sum(ld1*(iris2$species==specs[s]))/sum(iris2$species==specs[s])  	
+	cent[s, "LD2"] <- sum(ld2*(iris2$species==specs[s]))/sum(iris2$species==specs[s])
+}
+
+cent
+
+```
+
+##
+
+```{r}
+#| echo: true
+
+# Add Centroids to Plot:
+p + geom_point(data=cent, aes(x=LD1, y=LD2, 	shape=species), size=6) + 
+	guides(shape="none")
+
+```
+
+## Classification Tables
+
+```{r}
+#| echo: true
+
+# Create a contingency table with known(rows) and predicted (cols)
+ct <- table(pred$class, iris2$species)
+ct
+
+# Calculate the percent correct for each species:
+diag(prop.table(ct, 1))
+
+# Sum the diagonal proportions for overall correct classification:
+sum(diag(prop.table(ct)))
+
+```
+
+## Confusion Matrices!
+
+```{r}
+library(caret)
+confusionMatrix(ct)
+```
+
